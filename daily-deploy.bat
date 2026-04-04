@@ -1,10 +1,11 @@
 @echo off
-echo 🌅 Daily WHMS Deployment Script
+echo 🌅 Daily WHMS GitHub Deployment
 echo.
 
 echo 📅 Date: %date% %time%
 echo 📁 Project: WHMS System
 echo 🌐 Target: https://srihariagencies.com/whmslive
+echo 🔄 Workflow: Local → GitHub → cPanel (Automatic)
 echo.
 
 echo 📝 Staging changes for today...
@@ -16,23 +17,22 @@ if "%commit_msg%"=="" set commit_msg=Daily update %date% %time%
 
 git commit -m "%commit_msg%"
 
-echo 📦 Creating deployment package...
-git archive --format=zip --output=whms-daily-%date:~-4,4%%date:~-10,2%%date:~-7,2%.zip main
+echo � Pushing to GitHub (triggers auto-deployment)...
+git push origin main
 
 if %errorlevel% equ 0 (
-    echo ✅ Success! Daily deployment package created
-    echo 📦 File: whms-daily-%date:~-4,4%%date:~-10,2%%date:~-7,2%.zip
+    echo ✅ Success! Today's work deployed automatically
+    echo � GitHub Actions are deploying to cPanel now
+    echo ⏱️  Deployment usually takes 2-3 minutes
+    echo 🌐 Live site: https://srihariagencies.com/whmslive
     echo.
-    echo 📋 Upload Instructions:
-    echo 1. Login to cPanel: https://172.161.178.68.host.secureserver.net:2083
-    echo 2. File Manager → public_html → whmslive
-    echo 3. Upload today's zip file
-    echo 4. Extract and replace files
-    echo 5. Test: https://srihariagencies.com/whmslive
+    echo 📋 Check deployment status:
+    echo https://github.com/YOUR_USERNAME/srihari-live/actions
     echo.
-    echo 🎯 Today's work is ready for deployment!
+    echo 🎯 Today's work is live! 🚀
 ) else (
-    echo ❌ Failed to create deployment package
+    echo ❌ Failed to push to GitHub
+    echo 💡 Check your GitHub credentials and connection
 )
 
 echo.

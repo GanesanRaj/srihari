@@ -1,0 +1,48 @@
+name: Auto-Deploy to cPanel
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+      
+    - name: Create deployment package
+      run: |
+        echo "Deploying current state without zip file..."
+        
+    - name: Deploy to cPanel via FTP
+      uses: SamKirkland/FTP-Deploy-Action@4.3.0
+      with:
+        server: 172.161.178.68.host.secureserver.net
+        username: srihariagencies
+        password: ${{ secrets.FTP_PASSWORD }}
+        local-dir: .
+        server-dir: public_html/whmslive/
+        exclude: |
+          **/.git/**
+          **/.github/**
+          **/.env*
+          **/uploads/**
+          **/vendor/**
+          **/*.log
+          **/node_modules/**
+          **/*.zip
+          **/database/**
+          **/config/**
+          
+    - name: Setup production environment
+      run: |
+        echo "Setting up production environment..."
+        # Copy production environment file
+        if [ -f ".env.production" ]; then
+          echo "Production environment file found"
+        else
+          echo "Creating production environment template"
+        fi

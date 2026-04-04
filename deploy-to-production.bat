@@ -1,31 +1,48 @@
 @echo off
-echo 🚀 WHMS Auto-Deploy to Production
+echo 🚀 WHMS GitHub Auto-Deploy
 echo.
 
 echo 📋 Deployment Details:
 echo 🌐 Target: https://srihariagencies.com/whmslive
-echo 📁 Path: /home/srihariagencies/public_html/whmslive
+echo � Workflow: Local → GitHub → cPanel (Automatic)
 echo.
 
-echo 📦 Creating deployment package...
-git archive --format=zip --output=whms-deploy.zip HEAD
+echo 📦 Staging changes for deployment...
+git add .
+
+if %errorlevel% neq 0 (
+    echo ❌ Failed to stage changes
+    pause
+    exit /b 1
+)
+
+set /p msg="Enter commit message: "
+if "%msg%"=="" set msg=Daily update %date%
+
+echo 💾 Committing changes...
+git commit -m "%msg%"
+
+if %errorlevel% neq 0 (
+    echo ❌ Failed to commit changes
+    pause
+    exit /b 1
+)
+
+echo 📤 Pushing to GitHub (triggers auto-deployment)...
+git push origin main
 
 if %errorlevel% equ 0 (
-    echo ✅ Deployment package created: whms-deploy.zip
+    echo ✅ Successfully pushed to GitHub!
+    echo � GitHub Actions will auto-deploy to cPanel
+    echo 🌐 Live at: https://srihariagencies.com/whmslive
+    echo ⏱️  Deployment usually takes 2-3 minutes
     echo.
-    echo 📤 Ready for upload to cPanel
-    echo 🌐 After upload, visit: https://srihariagencies.com/whmslive
-    echo.
-    echo 📋 Upload Instructions:
-    echo 1. Login to cPanel: https://172.161.178.68.host.secureserver.net:2083
-    echo 2. File Manager → public_html → whmslive folder
-    echo 3. Upload whms-deploy.zip
-    echo 4. Extract files
-    echo 5. Copy .env.production to .env
-    echo 6. Update database credentials
+    echo 📋 Check deployment status:
+    echo https://github.com/YOUR_USERNAME/srihari-live/actions
     echo.
 ) else (
-    echo ❌ Failed to create deployment package
+    echo ❌ Failed to push to GitHub
+    echo 💡 Check your GitHub credentials
 )
 
 pause

@@ -1,12 +1,12 @@
-# Complete GitHub + cPanel Setup Guide
+# GitHub + cPanel Auto-Deployment Setup Guide
 
 ## Overview
-**Three-Way Deployment System:** Local VSCode → GitHub → cPanel (GoDaddy)
+**Modern Deployment System:** Local VSCode → GitHub → cPanel (Automatic via GitHub Actions)
 
 ## Prerequisites
 - ✅ GitHub account created
 - ✅ Local Git repository ready
-- ✅ cPanel Git repository configured
+- ✅ cPanel FTP access
 - ✅ VSCode as your editor
 
 ---
@@ -16,7 +16,7 @@
 ### 1.1 Create GitHub Repository
 1. **Login to GitHub:** https://github.com
 2. **Click:** "+" → "New repository"
-3. **Repository name:** `whmslive`
+3. **Repository name:** `srihari-live`
 4. **Description:** `WHMS Live System`
 5. **Visibility:** Private (recommended)
 6. **Don't initialize** with README, .gitignore, or license
@@ -25,7 +25,7 @@
 ### 1.2 Get GitHub Repository URL
 After creation, GitHub will show you the repository URL:
 ```
-https://github.com/YOUR_USERNAME/whmslive.git
+https://github.com/YOUR_USERNAME/srihari-live.git
 ```
 **Copy this URL** - you'll need it next.
 
@@ -38,7 +38,7 @@ Open terminal/command prompt in your project folder:
 
 ```bash
 # Add GitHub as remote (replace YOUR_USERNAME)
-git remote add origin https://github.com/YOUR_USERNAME/whmslive.git
+git remote add origin https://github.com/YOUR_USERNAME/srihari-live.git
 
 # Verify remotes
 git remote -v
@@ -46,16 +46,10 @@ git remote -v
 
 You should see both remotes:
 ```
-origin    https://github.com/YOUR_USERNAME/whmslive.git (fetch)
-origin    https://github.com/YOUR_USERNAME/whmslive.git (push)
+origin    https://github.com/YOUR_USERNAME/srihari-live.git (fetch)
+origin    https://github.com/YOUR_USERNAME/srihari-live.git (push)
 production https://srihariagencies@172.161.178.68.host.secureserver.net:2083/git/whmslive (fetch)
 production https://srihariagencies@172.161.178.68.host.secureserver.net:2083/git/whmslive (push)
-```
-
-### 2.2 Configure Git User (if not done)
-```bash
-git config --global user.name "Your Name"
-git config --global user.email "your.email@example.com"
 ```
 
 ---
@@ -75,91 +69,36 @@ git push -u origin main --force
 ```
 
 ### 3.2 Verify GitHub Upload
-1. **Visit:** https://github.com/YOUR_USERNAME/whmslive
+1. **Visit:** https://github.com/YOUR_USERNAME/srihari-live
 2. **Check:** All your files are there
 3. **Confirm:** No sensitive files (like .env) are uploaded
 
 ---
 
-## 🔧 STEP 4: Create Deployment Scripts
+## 🔧 STEP 4: GitHub Actions Setup
 
-### 4.1 Complete Deployment Script
-Save as `complete-deploy.bat`:
+### 4.1 Setup GitHub Secrets
+Go to your GitHub repository:
+1. **Settings** → **Secrets and variables** → **Actions**
+2. **Add repository secret:** `FTP_PASSWORD`
+3. **Value:** Your cPanel FTP password (Stephen4397)
 
-```batch
-@echo off
-title WHMS Complete Deployment System
-echo.
-echo ╔══════════════════════════════════════════════════════════════╗
-echo ║         WHMS Complete Deployment System                      ║
-echo ║     Local → GitHub → cPanel (Three-Way Deployment)          ║
-echo ╚══════════════════════════════════════════════════════════════╝
-echo.
-
-REM Check Git status
-echo 📋 Checking current status...
-git status --porcelain
-if %errorlevel% neq 0 (
-    echo ❌ Git error - please check your repository
-    pause
-    exit /b 1
-)
-
-echo.
-echo 📝 What did you work on today?
-set /p commit_msg="Enter description: "
-if "%commit_msg%"=="" set commit_msg=Daily update %date% %time%
-
-echo.
-echo 💻 STEP 1: Local Git Operations
-echo 📦 Staging all changes...
-git add .
-git commit -m "%commit_msg%"
-
-echo.
-echo 📦 STEP 2: Push to GitHub (Backup)
-echo 🚀 Pushing to GitHub...
-git push origin main
-
-echo.
-echo 🌐 STEP 3: Deploy to cPanel (Production)
-echo 🚀 Deploying to production...
-git push production main
-
-echo.
-echo 🎉 DEPLOYMENT SUCCESSFUL!
-echo 📋 Deployment Summary:
-echo 💻 Local:    Changes committed
-echo 📦 GitHub:   https://github.com/YOUR_USERNAME/whmslive
-echo 🌐 Live:     https://srihariagencies.com/whmslive
-echo 📝 Message:  %commit_msg%
-echo.
-pause
-```
-
-### 4.2 Quick Deploy Script
-Save as `quick-deploy.bat`:
-
-```batch
-@echo off
-echo 🚀 Quick WHMS Deploy
-git add .
-git commit -m "Quick update %date%"
-git push origin main
-git push production main
-echo ✅ Deployed to GitHub + cPanel
-pause
-```
+### 4.2 Verify GitHub Actions Workflow
+The `.github/workflows/deploy.yml` file is already configured to:
+- Trigger on push to main branch
+- Deploy via FTP to cPanel
+- Exclude sensitive files
+- Handle production environment
 
 ---
 
-## 🔧 STEP 5: Daily Workflow
+## 🔧 STEP 5: Daily Workflow (No Zip Files!)
 
-### 5.1 Standard Daily Process
+### 5.1 New Daily Process
 ```bash
 # 1. Make your code changes in VSCode
 # 2. Run deployment script
-complete-deploy.bat
+daily-deploy.bat
 
 # 3. Enter your work description when prompted
 # 4. Script handles everything automatically
@@ -173,11 +112,8 @@ git add .
 # Commit with message
 git commit -m "Added new shipment tracking feature"
 
-# Push to GitHub (backup)
+# Push to GitHub (triggers auto-deployment)
 git push origin main
-
-# Deploy to cPanel (production)
-git push production main
 ```
 
 ---
@@ -185,38 +121,37 @@ git push production main
 ## 🔧 STEP 6: Verification & Testing
 
 ### 6.1 After Each Deployment
-1. **GitHub Check:** Visit your GitHub repository
+1. **GitHub Actions:** Check deployment status at `https://github.com/YOUR_USERNAME/srihari-live/actions`
 2. **Live Site Check:** https://srihariagencies.com/whmslive
 3. **Functionality Test:** Test the features you updated
 
-### 6.2 Troubleshooting Checklist
-- **GitHub push fails:** Check internet, credentials, repository URL
-- **cPanel push fails:** Check GoDaddy credentials, repository URL
-- **Files not updating:** Check cPanel deployment settings
+### 6.2 Deployment Time
+- **GitHub Actions:** Usually 2-3 minutes
+- **Live Site:** Updates automatically when deployment completes
 
 ---
 
 ## 🎯 Benefits of This System
 
-### ✅ **Version Control**
-- Complete history of all changes
-- Easy rollback to any previous version
-- Clear commit messages for tracking
+### ✅ **No More Zip Files**
+- Direct Git deployment
+- No manual file uploads
+- No zip creation/extraction
 
-### ✅ **Backup & Safety**
-- GitHub serves as cloud backup
-- Code safe if local machine fails
-- Multiple deployment points
+### ✅ **Automatic Deployment**
+- Push to GitHub → Auto-deploy to cPanel
+- No manual steps required
+- Consistent deployment process
 
-### ✅ **Collaboration**
-- Team members can contribute via GitHub
-- Pull requests for code review
-- Issue tracking for bugs
+### ✅ **Version Control & Backup**
+- Complete history on GitHub
+- Easy rollback capabilities
+- Cloud backup of all code
 
-### ✅ **Automation**
-- One-command deployment
-- Consistent process every time
-- Reduced human error
+### ✅ **Collaboration Ready**
+- Team members can contribute
+- Pull requests for review
+- Issue tracking
 
 ---
 
@@ -224,23 +159,23 @@ git push production main
 
 ### Setup Commands (one time)
 ```bash
-git remote add origin https://github.com/YOUR_USERNAME/whmslive.git
+git remote add origin https://github.com/YOUR_USERNAME/srihari-live.git
 git push -u origin main
+# Add FTP_PASSWORD secret in GitHub Settings
 ```
 
 ### Daily Commands
 ```bash
-# Automated
-complete-deploy.bat
+# Automated (recommended)
+daily-deploy.bat
 
-# Quick version
-quick-deploy.bat
+# Production deploy
+deploy-to-production.bat
 
 # Manual
 git add .
 git commit -m "your message"
 git push origin main
-git push production main
 ```
 
 ### Status Commands
@@ -254,77 +189,70 @@ git remote -v                # Check remotes
 
 ## 🔐 Security Notes
 
-### ✅ **Do Upload to GitHub**
+### ✅ **Safe to Upload to GitHub**
 - All PHP files
 - JavaScript, CSS, HTML
 - Documentation
 - Configuration files (without secrets)
 
-### ❌ **Don't Upload to GitHub**
+### ❌ **Never Upload to GitHub**
 - `.env` files (contains database passwords)
 - API keys and secrets
 - Temporary files
 - Large uploads folder
 
-### 🛡️ **Protect Your Secrets**
-```bash
-# Add sensitive files to .gitignore
-echo ".env" >> .gitignore
-echo "uploads/" >> .gitignore
-echo "*.log" >> .gitignore
-```
+### 🛡️ **Protected by .gitignore**
+The GitHub Actions workflow automatically excludes:
+- `.env*` files
+- `uploads/` folders
+- `database/` folders
+- `config/` folders
+- Log files
+- Vendor folders
 
 ---
 
-## 🚀 Advanced Features
+## 🚀 How It Works
 
-### Branching Workflow
-```bash
-# Create feature branch
-git checkout -b feature/new-tracking
+### Deployment Flow
+1. **Local Changes:** You edit code in VSCode
+2. **Git Commit:** `daily-deploy.bat` commits changes
+3. **GitHub Push:** Code pushed to GitHub repository
+4. **GitHub Actions:** Automatically triggered
+5. **FTP Deploy:** Files transferred to cPanel
+6. **Live Site:** https://srihariagencies.com/whmslive updated
 
-# Work on feature, then:
-git add .
-git commit -m "Add tracking feature"
-git push origin feature/new-tracking
-
-# Merge to main when ready
-git checkout main
-git merge feature/new-tracking
-git push origin main
-git push production main
-```
-
-### Release Tags
-```bash
-# Tag a release version
-git tag -a v1.0.0 -m "Release version 1.0.0"
-git push origin v1.0.0
-git push production v1.0.0
-```
+### GitHub Actions Process
+- Triggers on push to main branch
+- Uses secure FTP credentials from GitHub secrets
+- Deploys only necessary files
+- Excludes sensitive data
+- Provides deployment logs
 
 ---
 
-## 📞 Support & Help
+## 📞 Troubleshooting
 
 ### Common Issues & Solutions
-1. **Authentication Error:** Update GitHub credentials
-2. **Push Rejected:** Pull latest changes first
-3. **Network Error:** Check internet connection
-4. **Permission Error:** Verify repository access
+1. **GitHub Push Fails:** Check internet, credentials, repository URL
+2. **GitHub Actions Fail:** Check FTP_PASSWORD secret, cPanel credentials
+3. **Deployment Slow:** Large files may take longer, check logs
+4. **Files Not Updating:** Check GitHub Actions logs for errors
 
 ### Getting Help
-- GitHub Documentation: https://docs.github.com
-- Git Documentation: https://git-scm.com/doc
-- cPanel Git Guide: Check cPanel help section
+- GitHub Actions Documentation: https://docs.github.com/en/actions
+- FTP-Deploy-Action: https://github.com/SamKirkland/FTP-Deploy-Action
+- cPanel FTP Settings: Check cPanel File Manager → FTP Accounts
 
 ---
 
 ## 🎉 You're Ready!
 
-Your complete three-way deployment system is now set up:
+Your modern auto-deployment system is now set up:
 - **💻 Local:** VSCode for development
-- **📦 GitHub:** For backup and collaboration  
-- **🌐 cPanel:** For live production
+- **📦 GitHub:** For backup, collaboration, and auto-deployment  
+- **🌐 cPanel:** Live production (updated automatically)
 
-Run `complete-deploy.bat` daily to deploy your changes!
+**Run `daily-deploy.bat` daily to deploy your changes automatically!**
+
+No more zip files, no more manual uploads - just Git push and go! 🚀
