@@ -1,0 +1,74 @@
+{
+    "info": {
+        "_postman_id": "inscan-api-001",
+        "name": "In-scan API Collection",
+        "description": "Postman kit for apps-api/inscan. Includes tag info retrieval and bulk scan updates.",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+        {
+            "name": "Get Tag Info",
+            "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                    "raw": "{{baseUrl}}/inscan/get-tag-info.php?tag_no=TAG250226-0001&branch_id=1",
+                    "host": [
+                        "{{baseUrl}}"
+                    ],
+                    "path": [
+                        "inscan",
+                        "get-tag-info.php"
+                    ],
+                    "query": [
+                        {
+                            "key": "tag_no",
+                            "value": "TAG250226-0001",
+                            "description": "Required"
+                        },
+                        {
+                            "key": "branch_id",
+                            "value": "1",
+                            "description": "Optional"
+                        }
+                    ]
+                },
+                "description": "Fetch tag details and shipment list. Returns total and scanned counts."
+            }
+        },
+        {
+            "name": "Bulk Update Scans",
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                    }
+                ],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\n  \"tag_id\": 1,\n  \"user_id\": 1,\n  \"scans\": [\n    {\n      \"awb_no\": \"SUR-003\",\n      \"status\": \"verified\",\n      \"remarks\": \"Verified via mobile app\"\n    }\n  ]\n}"
+                },
+                "url": {
+                    "raw": "{{baseUrl}}/inscan/update.php",
+                    "host": [
+                        "{{baseUrl}}"
+                    ],
+                    "path": [
+                        "inscan",
+                        "update.php"
+                    ]
+                },
+                "description": "Perform bulk scan verification. If total count doesn't match verified count, tag status becomes 'hold'."
+            }
+        }
+    ],
+    "variable": [
+        {
+            "key": "baseUrl",
+            "value": "http://localhost/SRIHARIAGENCIES/apps-api",
+            "type": "string"
+        }
+    ]
+}

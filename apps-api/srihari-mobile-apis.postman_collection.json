@@ -1,0 +1,626 @@
+{
+	"info": {
+		"_postman_id": "8c4a5b6c-7d8e-4f9a-a1b2-c3d4e5f6g7h8",
+		"name": "Srihari Agencies Mobile APIs",
+		"description": "Postman Collection for Srihari Agencies Mobile App APIs (apps-api/)",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Authentication",
+			"item": [
+				{
+					"name": "Login",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "username",
+									"value": "admin",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "password",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/login.php",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"login.php"
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Branch",
+			"item": [
+				{
+					"name": "List Branches",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/branch/list.php?status=active&start=0&limit=10",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"branch",
+								"list.php"
+							],
+							"query": [
+								{
+									"key": "status",
+									"value": "active"
+								},
+								{
+									"key": "start",
+									"value": "0"
+								},
+								{
+									"key": "limit",
+									"value": "10"
+								}
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Booking",
+			"item": [
+				{
+					"name": "List Bookings",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/booking/list.php?branch_id=1&status=Created&search=&start=0&limit=10",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"booking",
+								"list.php"
+							],
+							"query": [
+								{
+									"key": "branch_id",
+									"value": "1"
+								},
+								{
+									"key": "status",
+									"value": "Created"
+								},
+								{
+									"key": "search",
+									"value": ""
+								},
+								{
+									"key": "start",
+									"value": "0"
+								},
+								{
+									"key": "limit",
+									"value": "10"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Create Booking",
+					"request": {
+						"method": "POST",
+						"header": [
+							{"key": "Content-Type", "value": "application/json", "type": "text"}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"user_id\": 1,\n  \"courier_id\": 2,\n  \"branch_id\": 1,\n  \"client_id\": 1,\n  \"booking_type\": \"Forward\",\n  \"booking_ref_id\": \"\",\n  \"consignee_name\": \"Priya Sharma\",\n  \"consignee_phone\": \"9988776655\",\n  \"consignee_address\": \"Flat 3B, Green Valley Apartments, Koramangala\",\n  \"consignee_pin\": \"560034\",\n  \"consignee_city\": \"Bengaluru\",\n  \"consignee_state\": \"Karnataka\",\n  \"consignee_country\": \"India\",\n  \"consignee_email\": \"priya.s@example.com\",\n  \"consignee_gst\": \"\",\n  \"shipper_name\": \"Srihari Agencies\",\n  \"shipper_phone\": \"9444123456\",\n  \"shipper_address\": \"Warehouse 12, Guindy, Chennai\",\n  \"shipper_pin\": \"600032\",\n  \"shipper_city\": \"Chennai\",\n  \"shipper_state\": \"Tamil Nadu\",\n  \"payment_mode\": \"COD\",\n  \"cod_amount\": 2500,\n  \"shipping_mode\": \"Surface\",\n  \"product_desc\": \"Fashion - Apparel\",\n  \"invoice_no\": \"INV-2024-002\",\n  \"invoice_value\": 2500,\n  \"ewaybill_no\": \"\",\n  \"rto_name\": \"Srihari Agencies\",\n  \"rto_phone\": \"9444123456\",\n  \"rto_address\": \"Warehouse 12, Guindy, Chennai\",\n  \"length\": [35, 25],\n  \"width\": [28, 20],\n  \"height\": [15, 12],\n  \"boxes\": [1, 2],\n  \"actual_weight\": [1.2, 0.8],\n  \"charged_weight\": [1.2, 0.8],\n  \"vol_weight\": [],\n  \"pkg_awb_no\": [\"\", \"\"],\n  \"child_ewaybill_no\": [\"\", \"\"]\n}",
+							"options": {"raw": {"language": "json"}}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/booking/create.php",
+							"host": ["{{baseUrl}}"],
+							"path": ["booking", "create.php"]
+						}
+					}
+				},
+				{
+					"name": "Edit Booking",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "id",
+									"value": "1",
+									"type": "text"
+								},
+								{
+									"key": "consignee_name",
+									"value": "John Updated",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/booking/edit.php",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"booking",
+								"edit.php"
+							]
+						}
+					}
+				},
+				{
+					"name": "Delete Booking",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "id",
+									"value": "1",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/booking/delete.php",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"booking",
+								"delete.php"
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Client",
+			"item": [
+				{
+					"name": "List Clients",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/client/list.php?branch_id=1&status=active&start=0&limit=10",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"client",
+								"list.php"
+							],
+							"query": [
+								{
+									"key": "branch_id",
+									"value": "1"
+								},
+								{
+									"key": "status",
+									"value": "active"
+								},
+								{
+									"key": "start",
+									"value": "0"
+								},
+								{
+									"key": "limit",
+									"value": "10"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Create Client",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "branch_id",
+									"value": "1",
+									"type": "text"
+								},
+								{
+									"key": "client_name",
+									"value": "Test Client",
+									"type": "text"
+								},
+								{
+									"key": "contact_no",
+									"value": "9999999999",
+									"type": "text"
+								},
+								{
+									"key": "email",
+									"value": "test@example.com",
+									"type": "text"
+								},
+								{
+									"key": "address",
+									"value": "Client Address",
+									"type": "text"
+								},
+								{
+									"key": "city",
+									"value": "Chennai",
+									"type": "text"
+								},
+								{
+									"key": "state",
+									"value": "Tamil Nadu",
+									"type": "text"
+								},
+								{
+									"key": "pincode",
+									"value": "600001",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/client/create.php",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"client",
+								"create.php"
+							]
+						}
+					}
+				},
+				{
+					"name": "Edit Client",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "id",
+									"value": "1",
+									"type": "text"
+								},
+								{
+									"key": "branch_id",
+									"value": "1",
+									"type": "text"
+								},
+								{
+									"key": "client_name",
+									"value": "Updated Client",
+									"type": "text"
+								},
+								{
+									"key": "contact_no",
+									"value": "9999999999",
+									"type": "text"
+								},
+								{
+									"key": "address",
+									"value": "Updated Address",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/client/edit.php",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"client",
+								"edit.php"
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Consignee",
+			"item": [
+				{
+					"name": "List Consignees",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/consignee/list.php?branch_id=1&client_id=1&status=active",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"consignee",
+								"list.php"
+							],
+							"query": [
+								{
+									"key": "branch_id",
+									"value": "1"
+								},
+								{
+									"key": "client_id",
+									"value": "1"
+								},
+								{
+									"key": "status",
+									"value": "active"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Create Consignee",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "branch_id",
+									"value": "1",
+									"type": "text"
+								},
+								{
+									"key": "client_id",
+									"value": "1",
+									"type": "text"
+								},
+								{
+									"key": "name",
+									"value": "Receiver Name",
+									"type": "text"
+								},
+								{
+									"key": "contact_no",
+									"value": "8888888888",
+									"type": "text"
+								},
+								{
+									"key": "address",
+									"value": "Receiver Address",
+									"type": "text"
+								},
+								{
+									"key": "city",
+									"value": "Bangalore",
+									"type": "text"
+								},
+								{
+									"key": "state",
+									"value": "Karnataka",
+									"type": "text"
+								},
+								{
+									"key": "pincode",
+									"value": "560001",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/consignee/create.php",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"consignee",
+								"create.php"
+							]
+						}
+					}
+				},
+				{
+					"name": "Edit Consignee",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "id",
+									"value": "1",
+									"type": "text"
+								},
+								{
+									"key": "name",
+									"value": "Updated Receiver",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/consignee/edit.php",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"consignee",
+								"edit.php"
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Consignor",
+			"item": [
+				{
+					"name": "List Consignors",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/consignor/list.php?branch_id=1&client_id=1&status=active",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"consignor",
+								"list.php"
+							],
+							"query": [
+								{
+									"key": "branch_id",
+									"value": "1"
+								},
+								{
+									"key": "client_id",
+									"value": "1"
+								},
+								{
+									"key": "status",
+									"value": "active"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Create Consignor",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "branch_id",
+									"value": "1",
+									"type": "text"
+								},
+								{
+									"key": "client_id",
+									"value": "1",
+									"type": "text"
+								},
+								{
+									"key": "name",
+									"value": "Sender Name",
+									"type": "text"
+								},
+								{
+									"key": "contact_no",
+									"value": "7777777777",
+									"type": "text"
+								},
+								{
+									"key": "address",
+									"value": "Sender Address",
+									"type": "text"
+								},
+								{
+									"key": "city",
+									"value": "Chennai",
+									"type": "text"
+								},
+								{
+									"key": "state",
+									"value": "Tamil Nadu",
+									"type": "text"
+								},
+								{
+									"key": "pincode",
+									"value": "600001",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/consignor/create.php",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"consignor",
+								"create.php"
+							]
+						}
+					}
+				},
+				{
+					"name": "Edit Consignor",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "id",
+									"value": "1",
+									"type": "text"
+								},
+								{
+									"key": "name",
+									"value": "Updated Sender",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/consignor/edit.php",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"consignor",
+								"edit.php"
+							]
+						}
+					}
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost/steve/apps-api",
+			"type": "string"
+		},
+		{
+			"key": "liveBaseUrl",
+			"value": "http://your-server-ip/steve/apps-api",
+			"type": "string"
+		}
+	]
+}

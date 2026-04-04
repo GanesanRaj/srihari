@@ -1,0 +1,114 @@
+[
+    {
+        "Field": "id",
+        "Type": "int(11)",
+        "Null": "NO",
+        "Key": "PRI",
+        "Default": null,
+        "Extra": "auto_increment"
+    },
+    {
+        "Field": "booking_id",
+        "Type": "int(11)",
+        "Null": "NO",
+        "Key": "MUL",
+        "Default": null,
+        "Extra": ""
+    },
+    {
+        "Field": "waybill_no",
+        "Type": "varchar(100)",
+        "Null": "YES",
+        "Key": "MUL",
+        "Default": null,
+        "Extra": ""
+    },
+    {
+        "Field": "row_no",
+        "Type": "int(11)",
+        "Null": "NO",
+        "Key": "",
+        "Default": "1",
+        "Extra": ""
+    },
+    {
+        "Field": "awb_no",
+        "Type": "varchar(100)",
+        "Null": "YES",
+        "Key": "",
+        "Default": null,
+        "Extra": ""
+    },
+    {
+        "Field": "child_ewaybill_no",
+        "Type": "varchar(50)",
+        "Null": "YES",
+        "Key": "",
+        "Default": null,
+        "Extra": ""
+    },
+    {
+        "Field": "length",
+        "Type": "decimal(10,3)",
+        "Null": "YES",
+        "Key": "",
+        "Default": "0.000",
+        "Extra": ""
+    },
+    {
+        "Field": "width",
+        "Type": "decimal(10,3)",
+        "Null": "YES",
+        "Key": "",
+        "Default": "0.000",
+        "Extra": ""
+    },
+    {
+        "Field": "height",
+        "Type": "decimal(10,3)",
+        "Null": "YES",
+        "Key": "",
+        "Default": "0.000",
+        "Extra": ""
+    },
+    {
+        "Field": "boxes",
+        "Type": "int(11)",
+        "Null": "YES",
+        "Key": "",
+        "Default": "1",
+        "Extra": ""
+    },
+    {
+        "Field": "actual_weight",
+        "Type": "decimal(10,3)",
+        "Null": "YES",
+        "Key": "",
+        "Default": "0.000",
+        "Extra": ""
+    },
+    {
+        "Field": "vol_weight",
+        "Type": "decimal(10,3)",
+        "Null": "YES",
+        "Key": "",
+        "Default": "0.000",
+        "Extra": ""
+    },
+    {
+        "Field": "charged_weight",
+        "Type": "decimal(10,3)",
+        "Null": "YES",
+        "Key": "",
+        "Default": "0.000",
+        "Extra": ""
+    },
+    {
+        "Field": "created_at",
+        "Type": "timestamp",
+        "Null": "NO",
+        "Key": "",
+        "Default": "current_timestamp()",
+        "Extra": ""
+    }
+]

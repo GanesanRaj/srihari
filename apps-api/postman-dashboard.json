@@ -1,0 +1,72 @@
+{
+    "info": {
+        "_postman_id": "dashboard-api-001",
+        "name": "App Dashboard API Collection",
+        "description": "Postman kit for apps-api/dashboard. Includes aggregate counts and detailed lists.",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+        {
+            "name": "Get Dashboard Counts",
+            "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                    "raw": "{{baseUrl}}/dashboard/get-counts.php?branch_id=1",
+                    "host": [
+                        "{{baseUrl}}"
+                    ],
+                    "path": [
+                        "dashboard",
+                        "get-counts.php"
+                    ],
+                    "query": [
+                        {
+                            "key": "branch_id",
+                            "value": "1",
+                            "description": "Required"
+                        }
+                    ]
+                },
+                "description": "Fetch aggregate counts and recent snapshots for the dashboard."
+            }
+        },
+        {
+            "name": "Get Details List",
+            "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                    "raw": "{{baseUrl}}/dashboard/details.php?branch_id=1&type=waiting_pickup",
+                    "host": [
+                        "{{baseUrl}}"
+                    ],
+                    "path": [
+                        "dashboard",
+                        "details.php"
+                    ],
+                    "query": [
+                        {
+                            "key": "branch_id",
+                            "value": "1",
+                            "description": "Required"
+                        },
+                        {
+                            "key": "type",
+                            "value": "waiting_pickup",
+                            "description": "waiting_pickup | upcoming_tags | pending_delivery"
+                        }
+                    ]
+                },
+                "description": "Fetch the full list for a specific dashboard category."
+            }
+        }
+    ],
+    "variable": [
+        {
+            "key": "baseUrl",
+            "value": "http://localhost/SRIHARIAGENCIES/apps-api",
+            "type": "string"
+        }
+    ]
+}

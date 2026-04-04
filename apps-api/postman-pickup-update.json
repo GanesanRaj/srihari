@@ -1,0 +1,67 @@
+{
+  "info": {
+    "_postman_id": "pickup-update-001",
+    "name": "Pickup Update API (with upload)",
+    "description": "apps-api/pickup/update.php – status update with optional POD images (form-data). Same conditions as get-booking-info: branch_id + awb_no (child or parent AWB).",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Pickup Update (form-data, no file)",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            { "key": "branch_id",   "value": "3", "type": "text", "description": "Required" },
+            { "key": "awb_no",      "value": "SUR-003", "type": "text", "description": "Required – child or parent AWB" },
+            { "key": "status",      "value": "Picked Up", "type": "text", "description": "Required" },
+            { "key": "status_date", "value": "2025-02-26T14:30:00", "type": "text", "description": "Required – ISO date or Y-m-d H:i:s" },
+            { "key": "location",    "value": "Bangalore Hub", "type": "text" },
+            { "key": "remarks",     "value": "Collected by driver", "type": "text" },
+            { "key": "receiver_name",  "value": "", "type": "text" },
+            { "key": "receiver_phone", "value": "", "type": "text" },
+            { "key": "user_id",     "value": "1", "type": "text" }
+          ]
+        },
+        "url": {
+          "raw": "{{baseUrl}}/pickup/update.php",
+          "host": ["{{baseUrl}}"],
+          "path": ["pickup", "update.php"]
+        },
+        "description": "Update pickup status without POD images. Use form-data; do not set Content-Type (Postman sets multipart/form-data automatically)."
+      }
+    },
+    {
+      "name": "Pickup Update (with POD images)",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            { "key": "branch_id",   "value": "3", "type": "text" },
+            { "key": "awb_no",      "value": "SUR-003", "type": "text" },
+            { "key": "status",      "value": "Picked Up", "type": "text" },
+            { "key": "status_date", "value": "2025-02-26T14:30:00", "type": "text" },
+            { "key": "location",    "value": "Bangalore Hub", "type": "text" },
+            { "key": "remarks",     "value": "POD attached", "type": "text" },
+            { "key": "user_id",     "value": "1", "type": "text" },
+            { "key": "pod_images[]", "type": "file", "src": [], "description": "POD image 1 (compressed to 200KB server-side)" },
+            { "key": "pod_images[]", "type": "file", "src": [], "description": "POD image 2 (optional)" }
+          ]
+        },
+        "url": {
+          "raw": "{{baseUrl}}/pickup/update.php",
+          "host": ["{{baseUrl}}"],
+          "path": ["pickup", "update.php"]
+        },
+        "description": "Update with POD images. In Postman: set key to 'pod_images' and type to File for each row, then choose files. Multiple files use the same key 'pod_images'."
+      }
+    }
+  ],
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost/steve/apps-api", "type": "string" }
+  ]
+}

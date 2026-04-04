@@ -1,0 +1,98 @@
+{
+    "info": {
+        "_postman_id": "tag-api-001",
+        "name": "Tag Create API Collection",
+        "description": "Postman kit for apps-api/tag. Includes tag creation, shipment scanning, and status updates.",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+        {
+            "name": "Create Tag",
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                    }
+                ],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\n  \"from_branch\": 1,\n  \"to_branch\": 2,\n  \"remarks\": \"Test tag from mobile\"\n}"
+                },
+                "url": {
+                    "raw": "{{baseUrl}}/tag/create.php",
+                    "host": [
+                        "{{baseUrl}}"
+                    ],
+                    "path": [
+                        "tag",
+                        "create.php"
+                    ]
+                },
+                "description": "Create a new tag. Auto-generates tag_no if not provided."
+            }
+        },
+        {
+            "name": "Scan Shipment into Tag",
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                    }
+                ],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\n  \"tag_id\": 1,\n  \"awb_no\": \"SUR-007\",\n  \"remarks\": \"Scanned at source\"\n}"
+                },
+                "url": {
+                    "raw": "{{baseUrl}}/tag/scan.php",
+                    "host": [
+                        "{{baseUrl}}"
+                    ],
+                    "path": [
+                        "tag",
+                        "scan.php"
+                    ]
+                },
+                "description": "Add a shipment to a tag. Validates E-waybill requirements."
+            }
+        },
+        {
+            "name": "Update Tag Status",
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                    }
+                ],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\n  \"tag_id\": 1,\n  \"status\": \"verified\"\n}"
+                },
+                "url": {
+                    "raw": "{{baseUrl}}/tag/update-status.php",
+                    "host": [
+                        "{{baseUrl}}"
+                    ],
+                    "path": [
+                        "tag",
+                        "update-status.php"
+                    ]
+                },
+                "description": "Finalize tag status (packed, hold, verified)."
+            }
+        }
+    ],
+    "variable": [
+        {
+            "key": "baseUrl",
+            "value": "http://localhost/SRIHARIAGENCIES/apps-api",
+            "type": "string"
+        }
+    ]
+}

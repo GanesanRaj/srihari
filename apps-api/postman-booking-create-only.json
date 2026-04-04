@@ -1,0 +1,32 @@
+{
+	"info": {
+		"_postman_id": "booking-create-only-001",
+		"name": "Booking Create API",
+		"description": "Postman collection with sample data for apps-api/booking/create.php only.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Create Booking",
+			"request": {
+				"method": "POST",
+				"header": [
+					{"key": "Content-Type", "value": "application/json", "type": "text"}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"user_id\": 1,\n  \"courier_id\": 2,\n  \"branch_id\": 1,\n  \"client_id\": 1,\n  \"booking_type\": \"Forward\",\n  \"booking_ref_id\": \"\",\n  \"consignee_name\": \"Priya Sharma\",\n  \"consignee_phone\": \"9988776655\",\n  \"consignee_address\": \"Flat 3B, Green Valley Apartments, Koramangala\",\n  \"consignee_pin\": \"560034\",\n  \"consignee_city\": \"Bengaluru\",\n  \"consignee_state\": \"Karnataka\",\n  \"consignee_country\": \"India\",\n  \"consignee_email\": \"priya.s@example.com\",\n  \"consignee_gst\": \"\",\n  \"shipper_name\": \"Srihari Agencies\",\n  \"shipper_phone\": \"9444123456\",\n  \"shipper_address\": \"Warehouse 12, Guindy, Chennai\",\n  \"shipper_pin\": \"600032\",\n  \"shipper_city\": \"Chennai\",\n  \"shipper_state\": \"Tamil Nadu\",\n  \"payment_mode\": \"COD\",\n  \"cod_amount\": 2500,\n  \"shipping_mode\": \"Surface\",\n  \"product_desc\": \"Fashion - Apparel\",\n  \"invoice_no\": \"INV-2024-002\",\n  \"invoice_value\": 2500,\n  \"ewaybill_no\": \"\",\n  \"rto_name\": \"Srihari Agencies\",\n  \"rto_phone\": \"9444123456\",\n  \"rto_address\": \"Warehouse 12, Guindy, Chennai\",\n  \"length\": [35, 25],\n  \"width\": [28, 20],\n  \"height\": [15, 12],\n  \"boxes\": [1, 2],\n  \"actual_weight\": [1.2, 0.8],\n  \"charged_weight\": [1.2, 0.8],\n  \"vol_weight\": [],\n  \"pkg_awb_no\": [\"\", \"\"],\n  \"child_ewaybill_no\": [\"\", \"\"]\n}",
+					"options": {"raw": {"language": "json"}}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/booking/create.php",
+					"host": ["{{baseUrl}}"],
+					"path": ["booking", "create.php"]
+				}
+			}
+		}
+	],
+	"variable": [
+		{"key": "baseUrl", "value": "http://localhost/steve/apps-api", "type": "string"}
+	]
+}

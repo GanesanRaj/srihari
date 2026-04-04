@@ -1,0 +1,59 @@
+{
+  "info": {
+    "_postman_id": "delivery-api-001",
+    "name": "Delivery API Collection",
+    "description": "Postman kit for apps-api/delivery. Includes booking info retrieval and status update with POD images.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Get Booking Info (Delivery Ready)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/delivery/get-booking-info.php?awb_no=SUR-003&branch_id=3",
+          "host": ["{{baseUrl}}"],
+          "path": ["delivery", "get-booking-info.php"],
+          "query": [
+            { "key": "awb_no", "value": "SUR-003", "description": "Required – child or parent AWB" },
+            { "key": "branch_id", "value": "3", "description": "Required" }
+          ]
+        },
+        "description": "Fetch booking and package details for delivery. Returns delivery-specific status and package counts."
+      }
+    },
+    {
+      "name": "Update Delivery Status (with POD images)",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            { "key": "branch_id",   "value": "3", "type": "text", "description": "Required" },
+            { "key": "awb_no",      "value": "SUR-003", "type": "text", "description": "Required – child or parent AWB" },
+            { "key": "status",      "value": "Delivered", "type": "text", "description": "Required (e.g., Delivered, Partially Delivered, Out for Delivery)" },
+            { "key": "status_date", "value": "2026-02-27T10:30:00", "type": "text", "description": "Required – ISO date or Y-m-d H:i:s" },
+            { "key": "location",    "value": "Destination Hub", "type": "text" },
+            { "key": "remarks",     "value": "Delivered to owner", "type": "text" },
+            { "key": "receiver_name",  "value": "John Doe", "type": "text" },
+            { "key": "receiver_phone", "value": "9876543210", "type": "text" },
+            { "key": "user_id",     "value": "1", "type": "text" },
+            { "key": "delivery_pod_images[]", "type": "file", "src": [], "description": "Delivery POD image 1" },
+            { "key": "delivery_pod_images[]", "type": "file", "src": [], "description": "Delivery POD image 2 (optional)" }
+          ]
+        },
+        "url": {
+          "raw": "{{baseUrl}}/delivery/update.php",
+          "host": ["{{baseUrl}}"],
+          "path": ["delivery", "update.php"]
+        },
+        "description": "Update delivery status and upload POD images. In Postman: set key to 'delivery_pod_images[]' and type to File for each image row."
+      }
+    }
+  ],
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost/SRIHARIAGENCIES/apps-api", "type": "string" }
+  ]
+}
