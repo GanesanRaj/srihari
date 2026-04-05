@@ -2,64 +2,19 @@
 // cron-shiprocket.php
 // Run via cron every X minutes, or include with $_GET['waybill'] for single sync.
 
-require_once __DIR__ . '/config/config.php';
-
-set_time_limit(0);
-
-if (php_sapi_name() !== 'cli' && !defined('IN_CREATION')) {
-    header('Content-Type: text/plain');
+if (!function_exists('normalizeShiprocketDate')) {
+function normalizeShiprocketDate($value)
+{
+    $value = trim((string) $value);
+    if ($value === '') {
+        return '';
+    }
+    $ts = strtotime($value);
+    if ($ts === false) {
+        return '';
+    }
+    return date('Y-m-d H:i:s', $ts);
 }
-
-// echo "--- Starting Shiprocket Tracking Update: " . date('Y-m-d H:i:s') . " ---\n";
-
-try {
-    $shipmentWaybill = isset($_GET['waybill']) ? trim((string) $_GET['waybill']) : '';
-
-    if ($shipmentWaybill !== '') {
-        $sql = "SELECT
-                    b.id, b.waybill_no, b.updated_at,
-                    c.partner_code, c.partner_name, c.token
-                FROM tbl_bookings b
-                JOIN tbl_courier_partner c ON b.courier_id = c.id
-                WHERE b.waybill_no = :waybill
-                LIMIT 1";
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute([':waybill' => $shipmentWaybill]);
-        $shipments = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    } else {
-        $sql = "SELECT
-                    b.id, b.waybill_no, b.updated_at,
-                    c.partner_code, c.partner_name, c.token
-                FROM tbl_bookings b
-                JOIN tbl_courier_partner c ON b.courier_id = c.id
-                WHERE b.last_status NOT IN ('Delivered', 'Cancelled', 'RTO Delivered', 'Lost')
-                  AND b.waybill_no IS NOT NULL
-                  AND b.waybill_no != ''
-                  AND (
-                      UPPER(COALESCE(c.partner_code, '')) LIKE 'SR%'
-                      OR LOWER(COALESCE(c.partner_name, '')) LIKE '%shiprocket%'
-                  )
-                ORDER BY b.updated_at DESC
-                LIMIT 50";
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute();
-        $shipments = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    }
-
-    if (empty($shipments)) {
-        echo $shipmentWaybill !== '' ? "Shipment with Waybill {$shipmentWaybill} not found.\n" : "No active Shiprocket shipments found to track.\n";
-        return;
-    }
-
-    echo "Found " . count($shipments) . " Shiprocket shipments to track.\n";
-
-    foreach ($shipments as $shipment) {
-        processShiprocketTracking($pdo, $shipment);
-    }
-
-    echo "--- Finished Shiprocket Tracking Update: " . date('Y-m-d H:i:s') . " ---\n";
-} catch (Exception $e) {
-    echo "Top Level Error: " . $e->getMessage() . "\n";
 }
 
 if (!function_exists('processShiprocketTracking')) {
@@ -220,18 +175,63 @@ function processShiprocketTracking($pdo, $shipment)
 }
 }
 
-if (!function_exists('normalizeShiprocketDate')) {
-function normalizeShiprocketDate($value)
-{
-    $value = trim((string) $value);
-    if ($value === '') {
-        return '';
-    }
-    $ts = strtotime($value);
-    if ($ts === false) {
-        return '';
-    }
-    return date('Y-m-d H:i:s', $ts);
+require_once __DIR__ . '/config/config.php';
+
+set_time_limit(0);
+
+if (php_sapi_name() !== 'cli' && !defined('IN_CREATION')) {
+    header('Content-Type: text/plain');
 }
+
+// echo "--- Starting Shiprocket Tracking Update: " . date('Y-m-d H:i:s') . " ---\n";
+
+try {
+    $shipmentWaybill = isset($_GET['waybill']) ? trim((string) $_GET['waybill']) : '';
+
+    if ($shipmentWaybill !== '') {
+        $sql = "SELECT
+                    b.id, b.waybill_no, b.updated_at,
+                    c.partner_code, c.partner_name, c.token
+                FROM tbl_bookings b
+                JOIN tbl_courier_partner c ON b.courier_id = c.id
+                WHERE b.waybill_no = :waybill
+                LIMIT 1";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute([':waybill' => $shipmentWaybill]);
+        $shipments = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } else {
+        $sql = "SELECT
+                    b.id, b.waybill_no, b.updated_at,
+                    c.partner_code, c.partner_name, c.token
+                FROM tbl_bookings b
+                JOIN tbl_courier_partner c ON b.courier_id = c.id
+                WHERE b.last_status NOT IN ('Delivered', 'Cancelled', 'RTO Delivered', 'Lost')
+                  AND b.waybill_no IS NOT NULL
+                  AND b.waybill_no != ''
+                  AND (
+                      UPPER(COALESCE(c.partner_code, '')) LIKE 'SR%'
+                      OR LOWER(COALESCE(c.partner_name, '')) LIKE '%shiprocket%'
+                  )
+                ORDER BY b.updated_at DESC
+                LIMIT 50";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute();
+        $shipments = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    if (empty($shipments)) {
+        echo $shipmentWaybill !== '' ? "Shipment with Waybill {$shipmentWaybill} not found.\n" : "No active Shiprocket shipments found to track.\n";
+        return;
+    }
+
+    echo "Found " . count($shipments) . " Shiprocket shipments to track.\n";
+
+    foreach ($shipments as $shipment) {
+        processShiprocketTracking($pdo, $shipment);
+    }
+
+    echo "--- Finished Shiprocket Tracking Update: " . date('Y-m-d H:i:s') . " ---\n";
+} catch (Exception $e) {
+    echo "Top Level Error: " . $e->getMessage() . "\n";
 }
 ?>

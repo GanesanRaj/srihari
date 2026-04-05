@@ -1,0 +1,23 @@
+name: Deploy to GoDaddy cPanel
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+      
+    - name: Deploy to cPanel via FTP
+      uses: SamKirkland/FTP-Deploy-Action@4.3.0
+      with:
+        server: 172.161.178.68
+        username: srihariagences
+        password: ${{ secrets.FTP_PASSWORD }}
+        server-dir: public_html/whmsliveme/
+        exclude: ".git/**,.github/**,.env*,assets/uploads/**,database/**,logs/**,*.log,backup*/**,node_modules/**,vendor/**,*.zip,*.tar.gz,deploy-*.bat,CPANEL_*.md"

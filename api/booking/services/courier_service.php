@@ -10,20 +10,23 @@ $BOOKING_COURIER_REGISTRY = [
         'name_contains' => 'delhivery',
         'file' => 'delhivery.php',
         'create_handler' => 'syncBookingWithDelhivery',
-        'track_handler' => 'trackBookingWithDelhivery'
+        'track_handler' => 'trackBookingWithDelhivery',
+        'cancel_handler' => 'cancelBookingWithDelhivery'
     ],
     [
         'code_prefix' => 'SR',
         'name_contains' => 'shiprocket',
         'file' => 'shiprocket.php',
         'create_handler' => 'syncBookingWithShiprocket',
-        'track_handler' => 'trackBookingWithShiprocket'
+        'track_handler' => 'trackBookingWithShiprocket',
+        'cancel_handler' => 'cancelBookingWithShiprocket'
     ],
     [
         'id' => 2,
         'file' => 'owncourrier.php',
         'create_handler' => 'syncBookingWithOwnCourier',
-        'track_handler' => 'trackBookingWithOwnCourier'
+        'track_handler' => 'trackBookingWithOwnCourier',
+        'cancel_handler' => 'cancelBookingWithOwnCourier'
     ],
 ];
 
@@ -107,5 +110,28 @@ function trackBookingWithCourier($pdo, $courierData, $waybillNo)
     }
 
     return $matched['track_handler']($pdo, $courierData, $waybillNo);
+}
+
+function cancelBookingWithCourier($pdo, $courierData, $bookingData)
+{
+    $matched = findBookingCourierHandler($courierData);
+
+    if (!$matched) {
+        return [
+            'success' => true,
+            'message' => 'Local status updated only (no cancel API for this courier)'
+        ];
+    }
+
+    require_once __DIR__ . '/' . $matched['file'];
+
+    if (!function_exists($matched['cancel_handler'])) {
+        return [
+            'success' => false,
+            'message' => 'Cancel handler not found: ' . $matched['cancel_handler']
+        ];
+    }
+
+    return $matched['cancel_handler']($pdo, $courierData, $bookingData);
 }
 ?>

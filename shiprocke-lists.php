@@ -69,8 +69,11 @@
                                             <button id="btnGenerateManifest" class="btn btn-sm btn-success me-1" disabled>
                                                 <i class="ti ti-file-text me-1"></i> Generate Manifest
                                             </button>
+                                            <button id="btnCancelSelected" class="btn btn-sm btn-danger me-1" disabled>
+                                                <i class="ti ti-ban me-1"></i> Cancel Selected
+                                            </button>
                                             <button id="btnPrintSelected" class="btn btn-sm btn-warning" disabled>
-                                                <i class="ti ti-printer me-1"></i> Print Selected Labels
+                                                <i class="ti ti-printer me-1"></i> Print Labels
                                             </button>
                                         </div>
                                     </div>
@@ -196,10 +199,13 @@
                         var count = Object.keys(selectedRows).length;
                         $('#btnPrintSelected')
                             .prop('disabled', count === 0)
-                            .html('<i class="ti ti-printer me-1"></i> Print Selected Labels' + (count > 0 ? ' (' + count + ')' : ''));
+                            .html('<i class="ti ti-printer me-1"></i> Print Labels' + (count > 0 ? ' (' + count + ')' : ''));
                         $('#btnGenerateManifest')
                             .prop('disabled', count === 0)
                             .html('<i class="ti ti-file-text me-1"></i> Generate Manifest' + (count > 0 ? ' (' + count + ')' : ''));
+                        $('#btnCancelSelected')
+                            .prop('disabled', count === 0)
+                            .html('<i class="ti ti-ban me-1"></i> Cancel' + (count > 0 ? ' (' + count + ')' : ''));
                     }
 
                     function dateCb(start, end) {
@@ -358,8 +364,9 @@
                                 render: function (_, __, row) {
                                     var html = '<a href="order-details.php?id=' + row.id + '" class="btn btn-sm btn-outline-primary me-1">View</a>';
                                     if (row.waybill_no) {
-                                        html += '<a href="shipment-label-print.php?waybill=' + encodeURIComponent(row.waybill_no) + '" target="_blank" class="btn btn-sm btn-outline-secondary">Label</a>';
+                                        html += '<a href="shipment-label-print.php?waybill=' + encodeURIComponent(row.waybill_no) + '" target="_blank" class="btn btn-sm btn-outline-secondary me-1">Label</a>';
                                     }
+                                    html += '<button class="btn btn-sm btn-outline-danger btn-cancel-single" data-id="' + row.id + '" data-waybill="' + (row.waybill_no || '') + '">Cancel</button>';
                                     return html;
                                 }
                             }
@@ -508,6 +515,57 @@
                             });
                         });
                     });
+
+                    // Single cancel - service based (like delete pattern)
+                    $('#shiprocketTable').on('click', '.btn-cancel-single', function () {
+                        var id = $(this).data('id');
+                        var waybill = $(this).data('waybill');
+                        if (!waybill) { alert('No AWB number found.'); return; }
+                        var msg = 'Cancel shipment ' + waybill + '?\n\nThis will call the courier API and update local status to Cancelled.';
+                        if (!confirm(msg)) return;
+                        doCancelBookings([id]);
+                    });
+
+                    // Bulk cancel - service based
+                    $('#btnCancelSelected').on('click', function () {
+                        var ids = Object.keys(selectedRows).map(function (x) { return parseInt(x, 10); }).filter(function (x) { return x > 0; });
+                        var awbs = Object.values(selectedRows).filter(function (x) { return x; });
+                        if (!ids.length) return;
+                        var msg = 'Cancel ' + ids.length + ' selected shipment(s)?\n\nAWBs: ' + awbs.join(', ') + '\n\nThis will call the courier API and update local status to Cancelled.';
+                        if (!confirm(msg)) return;
+                        doCancelBookings(ids);
+                    });
+
+                    function doCancelBookings(ids) {
+                        $.ajax({
+                            url: 'api/shipment/booking_cancel.php',
+                            type: 'POST',
+                            contentType: 'application/json',
+                            data: JSON.stringify({ ids: ids }),
+                            success: function (res) {
+                                if (res.status === 'success') {
+                                    shipCancelToast(res.message || 'Cancelled successfully.');
+                                    selectedRows = {};
+                                    $('#selectAllRows').prop('checked', false).prop('indeterminate', false);
+                                    updateActionBtns();
+                                    table.ajax.reload(null, false);
+                                } else {
+                                    alert('Error: ' + (res.message || 'Cancel failed.'));
+                                }
+                            },
+                            error: function (xhr) {
+                                var r = {};
+                                try { r = JSON.parse(xhr.responseText); } catch (e) { }
+                                alert('Server error: ' + (r.message || xhr.statusText));
+                            }
+                        });
+                    }
+
+                    function shipCancelToast(msg) {
+                        var $t = $('<div style="position:fixed;bottom:24px;right:24px;z-index:9999;background:#dc3545;color:#fff;padding:12px 20px;border-radius:8px;font-size:13px;box-shadow:0 4px 12px rgba(0,0,0,.2);"><i class="ti ti-circle-x me-1"></i>' + msg + '</div>');
+                        $('body').append($t);
+                        setTimeout(function () { $t.fadeOut(400, function () { $(this).remove(); }); }, 3500);
+                    }
                 });
             </script>
         </div>

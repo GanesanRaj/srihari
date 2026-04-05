@@ -39,6 +39,29 @@ try {
         $row['awb_count'] = count($awbs);
         $row['awbs'] = $awbs;
         $row['manifest_url'] = $manifestUrl;
+        
+        // Fetch sub-courier information - show courier partner name from bookings
+        $row['sub_couriers'] = [];
+        if (!empty($awbs)) {
+            // Get courier names from bookings using waybill numbers
+            $placeholders = implode(',', array_fill(0, count($awbs), '?'));
+            $courierSql = "SELECT DISTINCT cp.partner_name as courier_name 
+                          FROM tbl_bookings b 
+                          LEFT JOIN tbl_courier_partner cp ON cp.id = b.courier_id 
+                          WHERE b.waybill_no IN ($placeholders) AND b.waybill_no IS NOT NULL AND b.waybill_no != ''";
+            $courierStmt = $pdo->prepare($courierSql);
+            $courierStmt->execute($awbs);
+            $courierData = $courierStmt->fetchAll(PDO::FETCH_ASSOC);
+            
+            $courierNames = [];
+            foreach ($courierData as $c) {
+                $courierName = !empty($c['courier_name']) ? trim((string)$c['courier_name']) : 'Unknown';
+                if ($courierName !== '' && !in_array($courierName, $courierNames)) {
+                    $courierNames[] = $courierName;
+                }
+            }
+            $row['sub_couriers'] = $courierNames;
+        }
     }
     unset($row);
 

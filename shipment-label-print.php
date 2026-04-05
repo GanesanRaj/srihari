@@ -829,7 +829,7 @@ catch ( Exception $e ) {
                         </td>
                         <td style="padding-bottom: 0px;">
                             <span class="header-cell">Ref NO:</span>
-                            <div class="content-cell"><b style="font-size:12px;"><?php echo h ( $label[ 'invoice_no' ] ); ?></b>
+                            <div class="content-cell"><b style="font-size:12px;"><?php echo h ( $label[ 'order_id' ] ); ?></b>
                             </div>
                         </td>
 

@@ -26,6 +26,7 @@
                                                 <th>Date</th>
                                                 <th>Manifested ID</th>
                                                 <th>Pickup Point</th>
+                                                <th>Sub Couriers</th>
                                                 <th>AWB Count</th>
                                                 <th>Created At</th>
                                                 <th>Created By</th>
@@ -58,6 +59,18 @@
                             { data: 'manifest_date', defaultContent: '-' },
                             { data: 'manifested_id', defaultContent: '-' },
                             { data: 'pickuppoint', defaultContent: '-' },
+                            { 
+                                data: 'sub_couriers',
+                                defaultContent: '-',
+                                render: function(data) {
+                                    if (!data || !Array.isArray(data) || data.length === 0) {
+                                        return '-';
+                                    }
+                                    return data.map(function(courier) {
+                                        return '<span class="badge bg-secondary me-1">' + courier + '</span>';
+                                    }).join('');
+                                }
+                            },
                             { data: 'awb_count', defaultContent: 0 },
                             { data: 'created_at', defaultContent: '-' },
                             { data: 'created_by_name', defaultContent: '-' },
