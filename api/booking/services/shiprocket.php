@@ -23,11 +23,16 @@ function syncBookingWithShiprocket($pdo, $courierData, $shipmentData)
         }
 
         $bookingRefId = trim((string)($shipmentData['booking_ref_id'] ?? ''));
-        $orderId = preg_replace('/\D+/', '', $bookingRefId);
-        if ($orderId === '') {
-            $orderId = (string)time();
+        $srExplicit = trim((string)($shipmentData['shiprocket_order_id'] ?? ''));
+        if ($srExplicit !== '' && ctype_digit($srExplicit) && strlen($srExplicit) <= 50) {
+            $orderId = substr($srExplicit, 0, 50);
+        } else {
+            $orderId = preg_replace('/\D+/', '', $bookingRefId);
+            if ($orderId === '') {
+                $orderId = (string)time();
+            }
+            $orderId = substr($orderId, 0, 50);
         }
-        $orderId = substr($orderId, 0, 50);
 
         $orderDate = date('Y-m-d H:i:s');
 

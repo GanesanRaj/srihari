@@ -50,7 +50,7 @@ try {
             }
         }
 
-    $sql = "SELECT b.id, b.courier_id, b.pickup_point_id, b.booking_ref_id, b.waybill_no,
+    $sql = "SELECT b.id, b.courier_id, b.pickup_point_id, b.booking_ref_id, b.auto_order_no, b.waybill_no,
             b.quantity, b.created_by, b.created_at,
             b.consignee_name, b.consignee_phone, b.consignee_address, b.consignee_city, b.consignee_pin, b.consignee_state,
             b.shipper_name, b.shipper_phone, b.shipper_address, b.shipper_city, b.shipper_pin,
@@ -82,7 +82,7 @@ try {
 
     // Search
     if ( ! empty ($searchValue)) {
-        $sql .= " AND (b.booking_ref_id LIKE :search OR b.waybill_no LIKE :search OR b.consignee_name LIKE :search OR b.shipper_name LIKE :search)";
+        $sql .= " AND (b.booking_ref_id LIKE :search OR b.waybill_no LIKE :search OR b.consignee_name LIKE :search OR b.shipper_name LIKE :search OR CAST(b.auto_order_no AS CHAR) LIKE :search)";
         }
 
     // Filter by Company
@@ -293,6 +293,9 @@ try {
                 }
             }
         }
+        if ($shiprocketOrderId === '' && ! empty ($row[ 'auto_order_no' ])) {
+            $shiprocketOrderId = (string) (int) $row[ 'auto_order_no' ];
+            }
         $row[ 'shiprocket_order_id' ] = $shiprocketOrderId;
         $row[ 'shiprocket_shipment_id' ] = $shiprocketShipmentId;
         $row[ 'shiprocket_awb_code' ] = $shiprocketAwbCode;
@@ -310,7 +313,7 @@ try {
                  WHERE 1=1" . $clientBranchWhere . $clientClientWhere;
 
     if ( ! empty ($searchValue)) {
-        $countSql .= " AND (b.booking_ref_id LIKE :search OR b.waybill_no LIKE :search OR b.consignee_name LIKE :search)";
+        $countSql .= " AND (b.booking_ref_id LIKE :search OR b.waybill_no LIKE :search OR b.consignee_name LIKE :search OR CAST(b.auto_order_no AS CHAR) LIKE :search)";
         }
     if ( ! empty ($_GET[ 'company_id' ])) {
         $countSql .= " AND br.company_id = :company_id";
@@ -384,7 +387,7 @@ try {
                  LEFT JOIN tbl_branch br ON b.branch_id = br.id
                  WHERE 1=1" . $clientBranchWhere . $clientClientWhere;
     if ( ! empty ($searchValue))
-        $statBase .= " AND (b.booking_ref_id LIKE :search OR b.waybill_no LIKE :search OR b.consignee_name LIKE :search OR b.shipper_name LIKE :search)";
+        $statBase .= " AND (b.booking_ref_id LIKE :search OR b.waybill_no LIKE :search OR b.consignee_name LIKE :search OR b.shipper_name LIKE :search OR CAST(b.auto_order_no AS CHAR) LIKE :search)";
     if ( ! empty ($_GET[ 'company_id' ]))
         $statBase .= " AND br.company_id = :company_id";
     if ( ! empty ($_GET[ 'branch_id' ]))

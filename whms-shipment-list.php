@@ -978,6 +978,7 @@ $isSuperAdmin = ((int) ($_SESSION[ 'role_id' ] ?? 0) === 1);
                                                     <?php endif; ?>
                                                     <th>Waybill</th>
                                                     <th>Ref No</th>
+                                                    <th>SR order no</th>
                                                     <th>Courier</th>
                                                     <th>Branch</th>
                                                     <th>Client</th>
@@ -1345,32 +1346,41 @@ $isSuperAdmin = ((int) ($_SESSION[ 'role_id' ] ?? 0) === 1);
                             },
                             /* 1 — Ref No */
                             { data: 'booking_ref_id', defaultContent: '<span class="text-muted">—</span>' },
-                            /* 2 — Courier */
+                            /* 2 — SR auto order no */
+                            {
+                                data: 'auto_order_no',
+                                defaultContent: '<span class="text-muted">—</span>',
+                                render: function (v) {
+                                    if (v == null || v === '') return '<span class="text-muted">—</span>';
+                                    return '<span style="font-weight:600;">' + v + '</span>';
+                                }
+                            },
+                            /* 3 — Courier */
                             {
                                 data: 'courier_name', defaultContent: '',
                                 render: function (v) {
                                     return v ? '<span class="chip chip-blue">' + v + '</span>' : '<span class="text-muted">—</span>';
                                 }
                             },
-                            /* 3 — Branch */
+                            /* 4 — Branch */
                             {
                                 data: 'branch_name', defaultContent: '',
                                 render: function (v) {
                                     return v ? '<span class="chip"><i class="ti ti-building"></i>' + v + '</span>' : '<span class="text-muted">—</span>';
                                 }
                             },
-                            /* 4 — Client */
+                            /* 5 — Client */
                             { data: 'company_name', defaultContent: '<span class="text-muted">—</span>' },
-                            /* 5 — Boxes */
+                            /* 6 — Boxes */
                             {
                                 data: 'quantity', defaultContent: '0',
                                 render: function (v) {
                                     return '<span class="chip"><i class="ti ti-box"></i>' + (v || 0) + '</span>';
                                 }
                             },
-                            /* 6 — Created By */
+                            /* 7 — Created By */
                             { data: 'created_by_name', defaultContent: '<span class="text-muted">—</span>' },
-                            /* 7 — Created At */
+                            /* 8 — Created At */
                             {
                                 data: 'created_at',
                                 render: function (v) {
@@ -1382,7 +1392,7 @@ $isSuperAdmin = ((int) ($_SESSION[ 'role_id' ] ?? 0) === 1);
                                         + d.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }) + '</span>';
                                 }
                             },
-                            /* 8 — Status */
+                            /* 9 — Status */
                             {
                                 data: 'last_status',
                                 render: function (data, type, row) {
@@ -1393,14 +1403,14 @@ $isSuperAdmin = ((int) ($_SESSION[ 'role_id' ] ?? 0) === 1);
                                         + label + '</span>';
                                 }
                             },
-                            /* 9 — Shipping Mode */
+                            /* 10 — Shipping Mode */
                             {
                                 data: 'shipping_mode', defaultContent: '',
                                 render: function (v) {
                                     return v ? '<span class="chip">' + v + '</span>' : '<span class="text-muted">—</span>';
                                 }
                             },
-                            /* 10 — Payment */
+                            /* 11 — Payment */
                             {
                                 data: 'payment_mode', defaultContent: '',
                                 render: function (v) {
@@ -1410,7 +1420,7 @@ $isSuperAdmin = ((int) ($_SESSION[ 'role_id' ] ?? 0) === 1);
                                         : '<span class="chip">' + v + '</span>';
                                 }
                             },
-                            /* 11 — Amount */
+                            /* 12 — Amount */
                             {
                                 data: null,
                                 render: function (data, type, row) {
@@ -1419,7 +1429,7 @@ $isSuperAdmin = ((int) ($_SESSION[ 'role_id' ] ?? 0) === 1);
                                     return '<span class="amount-val">₹' + amt.toFixed(2) + '</span>' + cod;
                                 }
                             },
-                            /* 12 — Sender */
+                            /* 13 — Sender */
                             {
                                 data: null,
                                 render: function (data, type, row) {
@@ -1431,14 +1441,14 @@ $isSuperAdmin = ((int) ($_SESSION[ 'role_id' ] ?? 0) === 1);
                                     return h;
                                 }
                             },
-                            /* 13 — Sender Address */
+                            /* 14 — Sender Address */
                             {
                                 data: 'shipper_address',
                                 render: function (v) {
                                     return v ? '<div class="address-wrap">' + v + '</div>' : '<span class="text-muted">—</span>';
                                 }
                             },
-                            /* 14 — Receiver */
+                            /* 15 — Receiver */
                             {
                                 data: null,
                                 render: function (data, type, row) {
@@ -1450,14 +1460,14 @@ $isSuperAdmin = ((int) ($_SESSION[ 'role_id' ] ?? 0) === 1);
                                     return h;
                                 }
                             },
-                            /* 15 — Receiver Address */
+                            /* 16 — Receiver Address */
                             {
                                 data: 'consignee_address',
                                 render: function (v) {
                                     return v ? '<div class="address-wrap">' + v + '</div>' : '<span class="text-muted">—</span>';
                                 }
                             },
-                            /* 16 — Action */
+                            /* 17 — Action */
                             {
                                 data: null, orderable: false,
                                 render: function (data, type, row) {

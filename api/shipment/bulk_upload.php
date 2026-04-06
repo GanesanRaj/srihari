@@ -361,6 +361,22 @@ foreach ($groups as $groupKey => $groupRows) {
                 }
             }
 
+        if (($clientId === null || $clientId <= 0) && $branchId > 0) {
+            $oneClient = $pdo->prepare("SELECT id FROM tbl_client WHERE branch_id = ? AND status = 'active' ORDER BY id ASC LIMIT 2");
+            $oneClient->execute([$branchId]);
+            $ocIds = $oneClient->fetchAll(PDO::FETCH_COLUMN);
+            if (count($ocIds) === 1) {
+                $clientId = (int) $ocIds[0];
+            }
+        }
+        if (($clientId === null || $clientId <= 0) && $isClientUpload) {
+            $rawSCOnly = $_SESSION['client_ids'] ?? '';
+            $allowedOnly = $rawSCOnly !== '' ? array_values(array_filter(array_map('intval', explode(',', $rawSCOnly)))) : [];
+            if (count($allowedOnly) === 1) {
+                $clientId = (int) $allowedOnly[0];
+            }
+        }
+
         // Capture branch/client name from first successful row
         if ($jobBranchName === null)
             $jobBranchName = $branchName;
@@ -613,8 +629,13 @@ foreach ($groups as $groupKey => $groupRows) {
         $apiResponseJson = json_encode ( $syncResult[ 'api_response' ] ?? [] );
 
         // DB Insert (branch_id, client_id for client-based branch and booking)
+        $bulkAutoOrderNo = isset ( $syncResult[ 'auto_order_no' ] ) ? (int) $syncResult[ 'auto_order_no' ] : null;
+        if ( $bulkAutoOrderNo <= 0 ) {
+            $bulkAutoOrderNo = null;
+            }
+
         $sql = "INSERT INTO tbl_bookings (
-            booking_ref_id, waybill_no, courier_id, pickup_point_id, branch_id, client_id,
+            booking_ref_id, auto_order_no, waybill_no, courier_id, pickup_point_id, branch_id, client_id,
             consignee_name, consignee_phone, consignee_email, consignee_gst, consignee_address, consignee_pin,
             consignee_city, consignee_state, consignee_country,
             shipper_name, shipper_phone, shipper_address, shipper_pin, shipper_city, shipper_state,
@@ -625,7 +646,7 @@ foreach ($groups as $groupKey => $groupRows) {
             shiprocket_courier_company_name, shiprocket_courier_company_id,
             api_response, last_status, created_at, created_by
         ) VALUES (
-            :ref, :wb, :cid, :pid, :branch_id, :client_id,
+            :ref, :auto_order_no, :wb, :cid, :pid, :branch_id, :client_id,
             :cname, :cphone, :cemail, :cgst, :caddr, :cpin,
             :ccity, :cstate, 'India',
             :sname, :sphone, :saddr, :spin, :scity, :sstate,
@@ -640,6 +661,7 @@ foreach ($groups as $groupKey => $groupRows) {
         $stmt = $pdo->prepare ( $sql );
         $stmt->execute ( [
             ':ref' => $refId,
+            ':auto_order_no' => $bulkAutoOrderNo,
             ':wb' => $waybillNo,
             ':cid' => $courierData[ 'id' ],
             ':pid' => $pPoint ? $pPoint[ 'id' ] : null,

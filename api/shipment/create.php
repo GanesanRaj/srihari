@@ -186,9 +186,14 @@ try {
         throw new Exception("Courier API Failed: " . $serviceResponse['message']);
     }
 
+    $autoOrderNoIns = isset($serviceResponse['auto_order_no']) ? (int)$serviceResponse['auto_order_no'] : null;
+    if ($autoOrderNoIns <= 0) {
+        $autoOrderNoIns = null;
+    }
+
     // 6. Insert into Database
     $sql = "INSERT INTO tbl_bookings (
-        booking_ref_id, waybill_no, courier_id, pickup_point_id,
+        booking_ref_id, auto_order_no, waybill_no, courier_id, pickup_point_id,
         consignee_name, consignee_phone, consignee_email, consignee_gst, consignee_address, consignee_pin,
         consignee_city, consignee_state, consignee_country,
         shipper_name, shipper_phone, shipper_address, shipper_pin, shipper_city, shipper_state,
@@ -198,7 +203,7 @@ try {
         rto_name, rto_phone, rto_address,
         api_response, last_status, created_by, created_at
     ) VALUES (
-        :ref_id, :waybill, :c_id, :p_id,
+        :ref_id, :auto_order_no, :waybill, :c_id, :p_id,
         :c_name, :c_phone, :c_email, :c_gst, :c_add, :c_pin,
         :c_city, :c_state, :c_country,
         :s_name, :s_phone, :s_add, :s_pin, :s_city, :s_state,
@@ -212,6 +217,7 @@ try {
     $stmt = $pdo->prepare($sql);
     $stmt->execute([
         ':ref_id' => $bookingRefId,
+        ':auto_order_no' => $autoOrderNoIns,
         ':waybill' => $waybillNo,
         ':c_id' => $courierId,
         ':p_id' => $pickupPointId,

@@ -66,7 +66,7 @@ function cancelBookingWithCourierService($pdo, $courierData, $bookingData)
         ];
     }
 
-    require_once __DIR__ . '/' . $matched['file'];
+    require_once __DIR__ . '/../booking/services/' . $matched['file'];
 
     if (!function_exists($matched['cancel_handler'])) {
         return [

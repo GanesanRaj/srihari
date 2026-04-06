@@ -446,6 +446,16 @@ try {
         $pickupPoint = $pickupStmt->fetch ( PDO::FETCH_ASSOC );
         }
 
+    // If client_id was not posted, infer when branch has exactly one active client.
+    if (($clientId === null || $clientId <= 0) && $branchId > 0) {
+        $ccStmt = $pdo->prepare("SELECT id FROM tbl_client WHERE branch_id = :bid AND status = 'active' ORDER BY id ASC LIMIT 2");
+        $ccStmt->execute([':bid' => $branchId]);
+        $ccRows = $ccStmt->fetchAll(PDO::FETCH_COLUMN);
+        if (count($ccRows) === 1) {
+            $clientId = (int) $ccRows[0];
+        }
+    }
+
     // Shiprocket requires an email in the order payload.
     // If the UI didn't send consignee_email, fall back to pickup point email.
     if (empty($consigneeEmail) && is_array($pickupPoint) && !empty($pickupPoint['email'])) {
@@ -523,8 +533,13 @@ try {
 
     $apiResponseJson = is_array ( $apiResponseRaw ) ? json_encode ( $apiResponseRaw ) : $apiResponseRaw;
 
+    $autoOrderNo = isset ( $syncResult[ 'auto_order_no' ] ) ? (int) $syncResult[ 'auto_order_no' ] : null;
+    if ( $autoOrderNo <= 0 ) {
+        $autoOrderNo = null;
+        }
+
     $sql = "INSERT INTO tbl_bookings (
-        booking_ref_id, waybill_no, courier_id, pickup_point_id, branch_id, client_id, booking_type,
+        booking_ref_id, auto_order_no, waybill_no, courier_id, pickup_point_id, branch_id, client_id, booking_type,
         consignee_name, consignee_phone, consignee_email, consignee_gst, consignee_address, consignee_pin,
         consignee_city, consignee_state, consignee_country,
         shipper_name, shipper_phone, shipper_address, shipper_pin, shipper_city, shipper_state,
@@ -535,7 +550,7 @@ try {
         shiprocket_courier_company_name, shiprocket_courier_company_id,
         api_response, last_status, created_by, created_at
     ) VALUES (
-        :ref_id, :waybill, :c_id, :p_id, :branch_id, :client_id, :booking_type,
+        :ref_id, :auto_order_no, :waybill, :c_id, :p_id, :branch_id, :client_id, :booking_type,
         :c_name, :c_phone, :c_email, :c_gst, :c_add, :c_pin,
         :c_city, :c_state, :c_country,
         :s_name, :s_phone, :s_add, :s_pin, :s_city, :s_state,
@@ -550,6 +565,7 @@ try {
     $stmt = $pdo->prepare ( $sql );
     $stmt->execute ( [
         ':ref_id' => $bookingRefId,
+        ':auto_order_no' => $autoOrderNo,
         ':waybill' => $waybillNo,
         ':c_id' => $courierId,
         ':p_id' => $pickupPointId > 0 ? $pickupPointId : null,

@@ -1,4 +1,28 @@
 <?php include 'header.php'; ?>
+<?php
+$isClientUser = false;
+$bArr = [];
+$cArr = [];
+if (($_SESSION['user_type'] ?? '') === 'client') {
+    $isClientUser = true;
+} elseif (isset($_SESSION['username'])) {
+    $chk = $pdo->prepare('SELECT clientaccess FROM tbl_user WHERE username = ? LIMIT 1');
+    $chk->execute([$_SESSION['username']]);
+    $chkRow = $chk->fetch(PDO::FETCH_ASSOC);
+    if ($chkRow && (int)($chkRow['clientaccess'] ?? 0) === 1) {
+        $isClientUser = true;
+    }
+}
+if ($isClientUser) {
+    $uRow = $pdo->prepare('SELECT branch_ids, client_ids FROM tbl_user WHERE username = ? AND clientaccess = 1 LIMIT 1');
+    $uRow->execute([$_SESSION['username'] ?? '']);
+    $uData = $uRow->fetch(PDO::FETCH_ASSOC);
+    $rawB = $uData['branch_ids'] ?? '';
+    $bArr = $rawB !== '' ? array_values(array_filter(array_map('intval', explode(',', $rawB)))) : [];
+    $rawC = $uData['client_ids'] ?? '';
+    $cArr = $rawC !== '' ? array_values(array_filter(array_map('intval', explode(',', $rawC)))) : [];
+}
+?>
 <!-- Start Main Content -->
 <link rel="stylesheet" href="assets/plugins/select2/select2.min.css">
 <div class="wrapper">
@@ -160,6 +184,17 @@
                                                                     data-toggle="select2" name="branch_id" required>
                                                                     <option value="">Select Branch</option>
                                                                 </select>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="row mb-3">
+                                                            <label class="col-sm-4 col-form-label">Client</label>
+                                                            <div class="col-sm-8">
+                                                                <select class="form-select select2" id="client_id"
+                                                                    data-toggle="select2" name="client_id">
+                                                                    <option value="">Select Client</option>
+                                                                </select>
+                                                                <small class="text-muted">Clients for selected branch (optional if only one client)</small>
                                                             </div>
                                                         </div>
 
@@ -703,6 +738,10 @@
 
 <script>
     $(document).ready(function () {
+        var allowedBranchIds = <?php echo json_encode($bArr); ?>;
+        var allowedClientIds = <?php echo json_encode($cArr); ?>;
+        var isClientUser = <?php echo $isClientUser ? 'true' : 'false'; ?>;
+
         if (jQuery().select2) {
             $('[data-toggle="select2"]').select2({
                 width: '100%'
@@ -799,13 +838,39 @@
             $('#consignee_gst').val(d.gst_number || '');
         });
 
-        // Load Branches
-        $.get('api/branch/read.php', function (res) {
+        // Load Branches (filter for client users; auto-select single branch)
+        $.get('api/branch/read.php?length=-1&status=active', function (res) {
             if (res.data) {
                 res.data.forEach(b => {
+                    if (isClientUser && allowedBranchIds.length && allowedBranchIds.indexOf(parseInt(b.id)) === -1) return;
                     $('#branch_id').append(`<option value="${b.id}">${b.branch_name}</option>`);
                 });
+                if ($('#branch_id option').length === 2) {
+                    $('#branch_id').find('option:eq(1)').prop('selected', true).trigger('change');
+                }
             }
+        });
+
+        // Load clients when branch changes
+        $('#branch_id').on('change', function () {
+            var branchId = $(this).val();
+            var $client = $('#client_id');
+            $client.empty().append('<option value="">Select Client</option>');
+            if (branchId) {
+                $.get('api/client/read.php?length=-1&branch_id=' + encodeURIComponent(branchId), function (res) {
+                    if (res.data && res.data.length) {
+                        res.data.forEach(function (cl) {
+                            if (isClientUser && allowedClientIds.length && allowedClientIds.indexOf(parseInt(cl.id)) === -1) return;
+                            $client.append(`<option value="${cl.id}">${cl.client_name || cl.contact_no || ('Client #' + cl.id)}</option>`);
+                        });
+                        if ($client.find('option').length === 2) {
+                            $client.find('option:eq(1)').prop('selected', true);
+                        }
+                    }
+                    if ($client.data('select2')) $client.trigger('change');
+                });
+            }
+            if ($client.data('select2')) $client.trigger('change');
         });
 
         // Load Pickup Points (and auto-fill consignor on change)

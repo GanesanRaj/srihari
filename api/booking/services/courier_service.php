@@ -86,7 +86,24 @@ function syncBookingWithCourier($pdo, $courierData, $shipmentData)
         ];
     }
 
-    return $matched['create_handler']($pdo, $courierData, $shipmentData);
+    $autoOrderNoForDb = null;
+    if (($matched['create_handler'] ?? '') === 'syncBookingWithShiprocket') {
+        require_once __DIR__ . '/booking_auto_order.php';
+        $ex = trim((string) ($shipmentData['shiprocket_order_id'] ?? ''));
+        if ($ex !== '' && ctype_digit($ex) && strlen($ex) <= 50) {
+            $autoOrderNoForDb = (int) $ex;
+            $shipmentData['shiprocket_order_id'] = $ex;
+        } else {
+            $autoOrderNoForDb = booking_allocate_auto_order_no($pdo);
+            $shipmentData['shiprocket_order_id'] = (string) $autoOrderNoForDb;
+        }
+    }
+
+    $result = $matched['create_handler']($pdo, $courierData, $shipmentData);
+    if ($autoOrderNoForDb !== null) {
+        $result['auto_order_no'] = $autoOrderNoForDb;
+    }
+    return $result;
 }
 
 function trackBookingWithCourier($pdo, $courierData, $waybillNo)

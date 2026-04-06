@@ -285,6 +285,7 @@
                                     }
                                     return `<i class="fa-solid fa-truck"></i> <span class="light">Waybill :</span> <strong style="color:#da7d41;">${row.waybill_no || 'N/A'}</strong>
                                         <br><span class="light">Ref No : </span> ${row.booking_ref_id || ''}
+                                        <br><span class="light">SR order no : </span> ${(row.auto_order_no != null && row.auto_order_no !== '') ? row.auto_order_no : '—'}
                                         <br><span class="light">Courier : </span> ${row.courier_name || ''}
                                         <br><span class="light">Branch : </span> ${row.branch_name || ''}
                                         <br><span class="light">Client : </span> <strong>${row.company_name || ''}</strong>

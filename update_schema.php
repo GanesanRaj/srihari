@@ -86,6 +86,25 @@ try {
         echo "Created table shiprocket_manifest\n";
     }
 
+    // Monotonic sequence for Shiprocket order_id (auto_order_no on tbl_bookings)
+    $checkSeqTable = $pdo->query ( "SELECT COUNT(*) FROM information_schema.TABLES
+        WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'tbl_booking_auto_order_seq'" )->fetchColumn ();
+    if ((int) $checkSeqTable === 0) {
+        $pdo->exec ( "CREATE TABLE tbl_booking_auto_order_seq (
+            id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci" );
+        echo "Created table tbl_booking_auto_order_seq\n";
+    }
+
+    $checkAutoOrderNo = $pdo->query ( "SELECT COUNT(*) FROM information_schema.COLUMNS
+        WHERE TABLE_SCHEMA = DATABASE()
+          AND TABLE_NAME = 'tbl_bookings'
+          AND COLUMN_NAME = 'auto_order_no'" )->fetchColumn ();
+    if ((int) $checkAutoOrderNo === 0) {
+        $pdo->exec ( "ALTER TABLE tbl_bookings ADD COLUMN auto_order_no INT UNSIGNED NULL UNIQUE AFTER booking_ref_id" );
+        echo "Added tbl_bookings.auto_order_no (UNIQUE)\n";
+    }
+
 } catch (PDOException $e) {
     echo "Error: " . $e->getMessage();
 }
