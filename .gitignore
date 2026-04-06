@@ -50,6 +50,10 @@ composer.lock
 # Deployment files
 whms-deploy.tar.gz
 DEPLOY_INSTRUCTIONS.txt
+# Local deploy archives (exceed GitHub 100MB file limit)
+deploy.zip
+whms-deploy.zip
+whms-daily-*.zip
 
 # OS generated files
 .DS_Store
