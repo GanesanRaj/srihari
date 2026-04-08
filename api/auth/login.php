@@ -60,9 +60,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 } else {
                     // Regular login - set regular session variables
                     $_SESSION['username'] = $user['username'];
-                    $_SESSION['user_id'] = $user['user_id'];
-                    $_SESSION['role_id'] = $user['role_id'];
+                    $_SESSION['user_id'] = $user['user_id'] ?? $user['id'] ?? 0;
+                    $_SESSION['role_id'] = $user['role_id'] ?? 0;
                     $_SESSION['user_type'] = $user['user_type'] ?? 'both';
+                    $_SESSION['client_ids'] = $user['client_ids'] ?? '';
+                    $_SESSION['branch_ids'] = $user['branch_ids'] ?? '';
                 }
 
                 // Store device/browser information for notifications

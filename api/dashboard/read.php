@@ -92,7 +92,12 @@ try {
 
     // Active Counts — always global (not client-restricted)
     $active_branches = $pdo->query("SELECT COUNT(*) FROM tbl_branch WHERE status='active'")->fetchColumn();
-    $active_employees = $pdo->query("SELECT COUNT(*) FROM tbl_employees WHERE status='active'")->fetchColumn();
+    // Support both table names used across deployments.
+    try {
+        $active_employees = $pdo->query("SELECT COUNT(*) FROM tbl_employee WHERE status='active'")->fetchColumn();
+    } catch (Exception $e) {
+        $active_employees = $pdo->query("SELECT COUNT(*) FROM tbl_employees WHERE status='active'")->fetchColumn();
+    }
     $active_companies = $pdo->query("SELECT COUNT(*) FROM tbl_company WHERE status='active'")->fetchColumn();
 
     // Today's Pickups

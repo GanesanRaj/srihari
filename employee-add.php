@@ -112,7 +112,7 @@ if (isset($_GET['id'])) {
                                                 class="text-danger">*</span></label>
                                         <div class="col-sm-8">
                                             <input type="text" class="form-control" id="name" name="name"
-                                                placeholder="Full Name" required>
+                                                placeholder="Full Name" required autocomplete="off">
                                             <div class="invalid-feedback">Name is required.</div>
                                         </div>
                                     </div>
@@ -122,7 +122,7 @@ if (isset($_GET['id'])) {
                                         <label class="col-sm-4 col-form-label" for="age">Age</label>
                                         <div class="col-sm-8">
                                             <input type="number" class="form-control" id="age" name="age"
-                                                placeholder="Age">
+                                                placeholder="Age" autocomplete="off">
                                         </div>
                                     </div>
 
@@ -131,7 +131,7 @@ if (isset($_GET['id'])) {
                                         <label class="col-sm-4 col-form-label" for="email">Email</label>
                                         <div class="col-sm-8">
                                             <input type="email" class="form-control" id="email" name="email"
-                                                placeholder="Email Address">
+                                                placeholder="Email Address" autocomplete="off">
                                         </div>
                                     </div>
 
@@ -140,7 +140,7 @@ if (isset($_GET['id'])) {
                                         <label class="col-sm-4 col-form-label" for="phone">Phone Number</label>
                                         <div class="col-sm-8">
                                             <input type="text" class="form-control" id="phone" name="phone"
-                                                placeholder="Phone Number">
+                                                placeholder="Phone Number" autocomplete="off">
                                         </div>
                                     </div>
 
@@ -150,7 +150,7 @@ if (isset($_GET['id'])) {
                                                 class="text-danger">*</span></label>
                                         <div class="col-sm-8">
                                             <input type="text" class="form-control" id="user_id" name="user_id"
-                                                placeholder="Login Username" required>
+                                                placeholder="Login Username" required autocomplete="off">
                                             <div class="invalid-feedback">Username is required.</div>
                                         </div>
                                     </div>
@@ -165,7 +165,7 @@ if (isset($_GET['id'])) {
                                         <label class="col-sm-4 col-form-label" for="father_name">Father Name</label>
                                         <div class="col-sm-8">
                                             <input type="text" class="form-control" id="father_name" name="father_name"
-                                                placeholder="Father's Name">
+                                                placeholder="Father's Name" autocomplete="off">
                                         </div>
                                     </div>
 
@@ -174,7 +174,7 @@ if (isset($_GET['id'])) {
                                         <label class="col-sm-4 col-form-label" for="mother_name">Mother Name</label>
                                         <div class="col-sm-8">
                                             <input type="text" class="form-control" id="mother_name" name="mother_name"
-                                                placeholder="Mother's Name">
+                                                placeholder="Mother's Name" autocomplete="off">
                                         </div>
                                     </div>
 
@@ -183,7 +183,7 @@ if (isset($_GET['id'])) {
                                         <label class="col-sm-4 col-form-label" for="education">Education</label>
                                         <div class="col-sm-8">
                                             <input type="text" class="form-control" id="education" name="education"
-                                                placeholder="Education Qualification">
+                                                placeholder="Education Qualification" autocomplete="off">
                                         </div>
                                     </div>
 
@@ -192,7 +192,7 @@ if (isset($_GET['id'])) {
                                         <label class="col-sm-4 col-form-label" for="salary">Salary</label>
                                         <div class="col-sm-8">
                                             <input type="number" step="0.01" class="form-control" id="salary"
-                                                name="salary" placeholder="Salary">
+                                                name="salary" placeholder="Salary" autocomplete="off">
                                         </div>
                                     </div>
 
@@ -201,7 +201,7 @@ if (isset($_GET['id'])) {
                                         <label class="col-sm-4 col-form-label" for="experience">Experience</label>
                                         <div class="col-sm-8">
                                             <input type="text" class="form-control" id="experience" name="experience"
-                                                placeholder="Work Experience">
+                                                placeholder="Work Experience" autocomplete="off">
                                         </div>
                                     </div>
 
@@ -223,7 +223,7 @@ if (isset($_GET['id'])) {
                                                 class="text-danger">*</span></label>
                                         <div class="col-sm-8">
                                             <input type="password" class="form-control" id="password" name="password"
-                                                placeholder="Login Password" required>
+                                                placeholder="Login Password" required autocomplete="new-password">
                                             <div class="invalid-feedback">Password is required.</div>
                                         </div>
                                     </div>
@@ -234,7 +234,7 @@ if (isset($_GET['id'])) {
                                             <span class="text-danger">*</span></label>
                                         <div class="col-sm-8">
                                             <input type="password" class="form-control" id="password_confirm"
-                                                name="password_confirm" placeholder="Confirm Password" required>
+                                                name="password_confirm" placeholder="Confirm Password" required autocomplete="new-password">
                                             <div class="invalid-feedback">Passwords do not match.</div>
                                         </div>
                                     </div>
@@ -250,7 +250,7 @@ if (isset($_GET['id'])) {
                                         <label class="col-sm-4 col-form-label" for="country">Country</label>
                                         <div class="col-sm-8">
                                             <input type="text" class="form-control" id="country" name="country"
-                                                value="INDIA">
+                                                value="INDIA" autocomplete="off">
                                         </div>
                                     </div>
 
@@ -259,7 +259,7 @@ if (isset($_GET['id'])) {
                                         <label class="col-sm-4 col-form-label" for="state">State</label>
                                         <div class="col-sm-8">
                                             <input type="text" class="form-control" id="state" name="state"
-                                                placeholder="State">
+                                                placeholder="State" autocomplete="off">
                                         </div>
                                     </div>
                                 </div>
@@ -270,7 +270,7 @@ if (isset($_GET['id'])) {
                                         <label class="col-sm-4 col-form-label" for="city">City</label>
                                         <div class="col-sm-8">
                                             <input type="text" class="form-control" id="city" name="city"
-                                                placeholder="City">
+                                                placeholder="City" autocomplete="off">
                                         </div>
                                     </div>
 
@@ -279,7 +279,7 @@ if (isset($_GET['id'])) {
                                         <label class="col-sm-4 col-form-label" for="pincode">Pincode</label>
                                         <div class="col-sm-8">
                                             <input type="text" class="form-control" id="pincode" name="pincode"
-                                                placeholder="Pincode">
+                                                placeholder="Pincode" autocomplete="off">
                                         </div>
                                     </div>
                                 </div>
@@ -327,8 +327,16 @@ if (isset($_GET['id'])) {
                         });
                     }
 
+                    // Get query parameter
+                    function getQueryParam(param) {
+                        const urlParams = new URLSearchParams(window.location.search);
+                        return urlParams.get(param);
+                    }
+
+                    let selectedId = getQueryParam("id");
+
                     // Load branches
-                    $.get('api/branch/read.php?length=-1', function (response) {
+                    const branchesRequest = $.get('api/branch/read.php?length=-1', function (response) {
                         if (response.status === 'error') {
                             showtoastt('Error loading branches: ' + response.message, 'error');
                             return;
@@ -344,7 +352,7 @@ if (isset($_GET['id'])) {
                     });
 
                     // Load roles
-                    $.get('api/role/read.php?length=-1', function (response) {
+                    const rolesRequest = $.get('api/role/read.php?length=-1', function (response) {
                         if (response.status === 'error') {
                             showtoastt('Error loading roles: ' + response.message, 'error');
                             return;
@@ -360,7 +368,7 @@ if (isset($_GET['id'])) {
                     });
 
                     // Load designations
-                    $.get('api/designation/read.php?length=-1', function (response) {
+                    const designationsRequest = $.get('api/designation/read.php?length=-1', function (response) {
                         if (response.status === 'error') {
                             showtoastt('Error loading designations: ' + response.message, 'error');
                             return;
@@ -375,18 +383,12 @@ if (isset($_GET['id'])) {
                         showtoastt('Error loading designations', 'error');
                     });
 
-                    // Get query parameter
-                    function getQueryParam(param) {
-                        const urlParams = new URLSearchParams(window.location.search);
-                        return urlParams.get(param);
-                    }
-
-                    let selectedId = getQueryParam("id");
-
-                    // If editing, fetch existing data
-                    if (selectedId) {
-                        editEmployee(selectedId);
-                    }
+                    // Wait for all dropdowns to load before editing
+                    $.when(branchesRequest, rolesRequest, designationsRequest).done(function () {
+                        if (selectedId) {
+                            editEmployee(selectedId);
+                        }
+                    });
 
                     function editEmployee(id) {
                         $.get(`api/employee/read_single.php?id=${id}`, function (response) {
@@ -401,8 +403,9 @@ if (isset($_GET['id'])) {
                                 $('#email').val(data.email);
                                 $('#phone').val(data.phone);
                                 $('#user_id').val(data.user_id);
-                                $('#password').val(data.password);
-                                $('#password_confirm').val(data.password);
+                                // Leave password fields empty on edit - user changes only if needed
+                                $('#password').val('');
+                                $('#password_confirm').val('');
                                 $('#father_name').val(data.father_name);
                                 $('#mother_name').val(data.mother_name);
                                 $('#education').val(data.education);
@@ -461,7 +464,7 @@ if (isset($_GET['id'])) {
                             {
                                 id: "password",
                                 message: "Password is required.",
-                                required: true
+                                required: !selectedId  // Required only for new employees
                             },
                             {
                                 id: "phone",

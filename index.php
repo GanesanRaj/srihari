@@ -1177,7 +1177,14 @@ include 'header.php';
 
                 function loadDashboardData(from, to) {
                     $.get('api/dashboard/read.php', { from: from, to: to, courier_id: currentCourierId }, function (d) {
-                        if (d.status !== 'success') return;
+                        if (!d || d.status !== 'success') {
+                            const msg = (d && d.message) ? d.message : 'Failed to load dashboard data';
+                            if (typeof showtoastt === 'function') showtoastt(msg, 'error');
+                            $('#total-shipments,#delivered-shipments,#transit-shipments,#pending-shipments,#ofd-shipments,#rto-shipments,#ndr-count,#active-branches,#active-companies,#active-employees,#today-pickups,#today-picked,#today-pending,#upcoming-pickups').text('0');
+                            $('#cod-total').text('₹0');
+                            $('#bulk-upload-list').html('<tr><td colspan="8" class="text-center py-4 text-muted fs-12">Dashboard API error</td></tr>');
+                            return;
+                        }
 
                         $('#total-shipments').text(d.data.total_shipments);
 
@@ -1275,6 +1282,11 @@ include 'header.php';
                         updateTimeline(d.data.daily_stats);
                         updateDistribution(d.data.status_counts);
                         updateCalendar(d.data.calendar_events);
+                    }).fail(function () {
+                        if (typeof showtoastt === 'function') showtoastt('Dashboard API request failed', 'error');
+                        $('#total-shipments,#delivered-shipments,#transit-shipments,#pending-shipments,#ofd-shipments,#rto-shipments,#ndr-count,#active-branches,#active-companies,#active-employees,#today-pickups,#today-picked,#today-pending,#upcoming-pickups').text('0');
+                        $('#cod-total').text('₹0');
+                        $('#bulk-upload-list').html('<tr><td colspan="8" class="text-center py-4 text-muted fs-12">Unable to load dashboard</td></tr>');
                     });
                 }
 

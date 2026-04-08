@@ -33,8 +33,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 if ($password == $user['password']) {
                     // Set session variables
                     $_SESSION['username'] = $user['username'];
-                    $_SESSION['user_id'] = $user['user_id'] ?? $user['id'];
-                    $_SESSION['role_id'] = $user['role_id'];
+                    $_SESSION['user_id'] = $user['user_id'] ?? $user['id'] ?? 0;
+                    $_SESSION['role_id'] = $user['role_id'] ?? 0;
                     $_SESSION['user_type'] = (!empty($user['user_type']) ? $user['user_type'] : ($user['clientaccess'] == 1 ? 'client' : 'both'));
                     $_SESSION['client_ids'] = !empty($user['client_ids']) ? $user['client_ids'] : '';
                     $_SESSION['branch_ids'] = !empty($user['branch_ids']) ? $user['branch_ids'] : '';

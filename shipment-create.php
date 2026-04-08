@@ -738,6 +738,7 @@ if ($isClientUser) {
 
 <script>
     $(document).ready(function () {
+        var preferredSource = <?php echo json_encode(strtolower(trim($_GET['source'] ?? ''))); ?>;
         var allowedBranchIds = <?php echo json_encode($bArr); ?>;
         var allowedClientIds = <?php echo json_encode($cArr); ?>;
         var isClientUser = <?php echo $isClientUser ? 'true' : 'false'; ?>;
@@ -903,6 +904,26 @@ if ($isClientUser) {
                 res.data.forEach(c => {
                     $('#courier_id').append(`<option value="${c.id}">${c.partner_name}</option>`);
                 });
+
+                // Auto-select courier when opened from source-specific create entry points.
+                if (preferredSource === 'shiprocket' || preferredSource === 'delhivery') {
+                    let targetCourierId = '';
+                    if (preferredSource === 'shiprocket') {
+                        const shiprocketCourier = res.data.find(c => (c.partner_name || '').toLowerCase().includes('shiprocket'));
+                        if (shiprocketCourier && shiprocketCourier.id) {
+                            targetCourierId = String(shiprocketCourier.id);
+                        }
+                    } else {
+                        const delhiveryCourier = res.data.find(c => (c.partner_name || '').toLowerCase().includes('delhivery'));
+                        if (delhiveryCourier && delhiveryCourier.id) {
+                            targetCourierId = String(delhiveryCourier.id);
+                        }
+                    }
+
+                    if (targetCourierId !== '') {
+                        $('#courier_id').val(targetCourierId).trigger('change');
+                    }
+                }
             }
         });
 

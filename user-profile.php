@@ -9,6 +9,24 @@ $user_email = $_SESSION['user_email'] ?? '';
 $user_image = isset($_SESSION['user_image']) && !empty($_SESSION['user_image'])
     ? $_SESSION['user_image']
     : 'assets/images/users/default-avatar.png';
+$session_role_id = (int) ($_SESSION['role_id'] ?? 0);
+$login_role_name = trim((string) ($_SESSION['designation'] ?? ''));
+
+if ($login_role_name === '' && $session_role_id > 0) {
+    try {
+        $roleStmt = $pdo->prepare("SELECT name FROM roles WHERE id = ? LIMIT 1");
+        $roleStmt->execute([$session_role_id]);
+        $roleRow = $roleStmt->fetch(PDO::FETCH_ASSOC);
+        if ($roleRow && !empty($roleRow['name'])) {
+            $login_role_name = trim((string) $roleRow['name']);
+        }
+    } catch (Exception $e) {
+        // Keep graceful fallback if roles table lookup fails.
+    }
+}
+if ($login_role_name === '') {
+    $login_role_name = $session_role_id > 0 ? ('Role ID: ' . $session_role_id) : 'Not assigned';
+}
 
 // Access scope for client-type users
 $isClientUser = ($_SESSION['user_type'] ?? '') === 'client';
@@ -93,7 +111,7 @@ if ($isClientUser) {
                                         <div class="col-12 mb-2">
                                             <div class="d-flex align-items-center">
                                                 <i class="ti ti-briefcase me-2 text-muted"></i>
-                                                <span class="text-muted" id="display_role">Not set</span>
+                                                <span class="text-muted" id="display_role"><?php echo htmlspecialchars($login_role_name); ?></span>
                                             </div>
                                         </div>
                                         <div class="col-12 mb-2">

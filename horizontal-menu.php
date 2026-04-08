@@ -3,11 +3,23 @@
 if ( ! defined( 'MIDDLEWARE_INCLUDED' ) ) {
     require_once __DIR__ . '/config/middleware.php';
 }
+// #region agent log
+if (function_exists('_agent_debug_log')) {
+    _agent_debug_log([
+        'hypothesisId' => 'H8',
+        'location' => 'horizontal-menu.php:entry',
+        'message' => 'Horizontal menu rendered',
+        'data' => [
+            'uri' => (string) ($_SERVER['REQUEST_URI'] ?? ''),
+            'session_role_id' => (int) ($_SESSION['role_id'] ?? 0),
+            'session_user_id' => (int) ($_SESSION['user_id'] ?? 0)
+        ]
+    ]);
+}
+// #endregion
 // Show nav item/link if user has any of view, add, edit, delete for that permission (or is super admin)
 $nav_can = function( $prefixes ) {
     global $role_id;
-    $userId = (int) ( $_SESSION['user_id'] ?? 0 );
-    if ( $userId === 1 ) return true;   // user id 1 = super admin, show all menu
     if ( (int) $role_id === 1 ) return true;   // role id 1 = admin, show all menu
     if ( ! is_array( $prefixes ) ) $prefixes = [ $prefixes ];
     foreach ( $prefixes as $p ) {
@@ -68,8 +80,16 @@ $nav_can = function( $prefixes ) {
 
                                                 <!-- Booking: show dropdown if user has view on any booking permission; each link only if that permission is enabled -->
                                         <?php
-                                        $booking_prefixes = [ 'shipment-create', 'shipment-bulk', 'shipment-list', 'shipment-status-update', 'tracking', 'rate-calculator', 'ndr-shipments', 'ndr_status', 'shipment', 'booking', 'pickuppoint', 'pickup_request' ];
-                                        $booking_can = $nav_can( $booking_prefixes );
+                                        $booking_can_create = $nav_can( 'shipment-create' );
+                                        $booking_can_bulk = $nav_can( 'shipment-bulk' );
+                                        $booking_can_list = $nav_can( 'shipment-list' );
+                                        $booking_can_status = $nav_can( 'shipment-status-update' );
+                                        $booking_can_tracking = $nav_can( 'tracking' );
+                                        $booking_can_rate = $nav_can( 'rate-calculator' );
+                                        $booking_can_ndr = $nav_can( [ 'ndr-shipments', 'ndr_status' ] );
+                                        $booking_can_pickuppoint = $nav_can( 'booking-pickuppoint' );
+                                        $booking_can_pickup_request = $nav_can( 'pickup_request' );
+                                        $booking_can = $booking_can_create || $booking_can_bulk || $booking_can_list || $booking_can_status || $booking_can_tracking || $booking_can_rate || $booking_can_ndr || $booking_can_pickuppoint || $booking_can_pickup_request;
                                         if ( $booking_can ) : ?>
                                         <li class="nav-item dropdown">
                                                 <a class="nav-link dropdown-toggle drop-arrow-none" href="#"
@@ -80,23 +100,29 @@ $nav_can = function( $prefixes ) {
                                                         <div class="menu-arrow"></div>
                                                 </a>
                                                 <div class="dropdown-menu" aria-labelledby="topnav-booking">
-                                                        <?php if ( $nav_can( 'shipment-create' ) ) : ?><a href="shipment-create.php" class="dropdown-item"><i data-lucide="package-plus" style="width:14px;height:14px;" class="me-2"></i>Create Shipment</a><?php endif; ?>
-                                                        <?php if ( $nav_can( 'shipment-bulk' ) ) : ?><a href="delhivery-b2c-bulk-upload.php" class="dropdown-item"><i data-lucide="upload" style="width:14px;height:14px;" class="me-2"></i>Bulk Upload</a><?php endif; ?>
-                                                        <?php if ( $nav_can( 'shipment-list' ) ) : ?><a href="shiprocke-lists.php" class="dropdown-item"><i data-lucide="list" style="width:14px;height:14px;" class="me-2"></i>Booking List</a><?php endif; ?>
-                                                        <?php if ( $nav_can( 'shipment-status-update' ) ) : ?><a href="shipment-status-update.php" class="dropdown-item"><i data-lucide="activity" style="width:14px;height:14px;" class="me-2"></i>Update Shipment Status</a><?php endif; ?>
-                                                        <?php if ( $nav_can( 'tracking' ) ) : ?><a href="tracking.php" class="dropdown-item"><i data-lucide="navigation" style="width:14px;height:14px;" class="me-2"></i>Tracking</a><?php endif; ?>
-                                                        <?php if ( $nav_can( 'rate-calculator' ) ) : ?><a href="rate-calculator.php" class="dropdown-item"><i data-lucide="calculator" style="width:14px;height:14px;" class="me-2"></i>Rate Calculator</a><?php endif; ?>
-                                                        <?php if ( $nav_can( [ 'ndr-shipments', 'ndr_status' ] ) ) : ?><a href="ndr-shipments.php" class="dropdown-item"><i data-lucide="alert-triangle" style="width:14px;height:14px;" class="me-2"></i>NDR Status</a><?php endif; ?>
-                                                        <?php if ( $nav_can( 'pickuppoint' ) ) : ?><a href="pickuppoint-list.php" class="dropdown-item"><i data-lucide="map-pin" style="width:14px;height:14px;" class="me-2"></i>Pickup Point</a><?php endif; ?>
-                                                        <?php if ( $nav_can( 'pickup_request' ) ) : ?><a href="pickup-request-list.php" class="dropdown-item"><i data-lucide="truck" style="width:14px;height:14px;" class="me-2"></i>Pickup Request</a><?php endif; ?>
+                                                        <?php if ( $booking_can_create ) : ?><a href="shipment-create.php" class="dropdown-item"><i data-lucide="package-plus" style="width:14px;height:14px;" class="me-2"></i>Create Shipment</a><?php endif; ?>
+                                                        <?php if ( $booking_can_bulk ) : ?><a href="delhivery-b2c-bulk-upload.php" class="dropdown-item"><i data-lucide="upload" style="width:14px;height:14px;" class="me-2"></i>Bulk Upload</a><?php endif; ?>
+                                                        <?php if ( $booking_can_list ) : ?><a href="shiprocke-lists.php" class="dropdown-item"><i data-lucide="list" style="width:14px;height:14px;" class="me-2"></i>Booking List</a><?php endif; ?>
+                                                        <?php if ( $booking_can_status ) : ?><a href="shipment-status-update.php" class="dropdown-item"><i data-lucide="activity" style="width:14px;height:14px;" class="me-2"></i>Update Shipment Status</a><?php endif; ?>
+                                                        <?php if ( $booking_can_tracking ) : ?><a href="tracking.php" class="dropdown-item"><i data-lucide="navigation" style="width:14px;height:14px;" class="me-2"></i>Tracking</a><?php endif; ?>
+                                                        <?php if ( $booking_can_rate ) : ?><a href="rate-calculator.php" class="dropdown-item"><i data-lucide="calculator" style="width:14px;height:14px;" class="me-2"></i>Rate Calculator</a><?php endif; ?>
+                                                        <?php if ( $booking_can_ndr ) : ?><a href="ndr-shipments.php" class="dropdown-item"><i data-lucide="alert-triangle" style="width:14px;height:14px;" class="me-2"></i>NDR Status</a><?php endif; ?>
+                                                        <?php if ( $booking_can_pickuppoint ) : ?><a href="pickuppoint-list.php" class="dropdown-item"><i data-lucide="map-pin" style="width:14px;height:14px;" class="me-2"></i>Pickup Point</a><?php endif; ?>
+                                                        <?php if ( $booking_can_pickup_request ) : ?><a href="pickup-request-list.php" class="dropdown-item"><i data-lucide="truck" style="width:14px;height:14px;" class="me-2"></i>Pickup Request</a><?php endif; ?>
                                                 </div>
                                         </li>
                                         <?php endif; ?>
 
                                         <!-- Delhivery Menu -->
                                         <?php
-                                        $delhivery_prefixes = [ 'shipment-create', 'shipment-bulk', 'shipment-list', 'tracking', 'pickuppoint', 'pickup_request', 'ndr-shipments', 'ndr_status' ];
-                                        $delhivery_can = $nav_can( $delhivery_prefixes );
+                                        $delhivery_can_booking = $nav_can( 'delhivery-b2c-booking' );
+                                        $delhivery_can_list = $nav_can( 'delhivery-b2c-list' );
+                                        $delhivery_can_bulk = $nav_can( 'delhivery-bulk' );
+                                        $delhivery_can_tracking = $nav_can( 'tracking' ) && ( $delhivery_can_booking || $delhivery_can_list || $delhivery_can_bulk || $delhivery_can_pickuppoint || $delhivery_can_pickup_request || $delhivery_can_ndr );
+                                        $delhivery_can_pickuppoint = $nav_can( 'delhivery-pickuppoint' );
+                                        $delhivery_can_pickup_request = $nav_can( 'delhivery-pickup-request' );
+                                        $delhivery_can_ndr = $nav_can( 'delhivery-ndr' );
+                                        $delhivery_can = $delhivery_can_booking || $delhivery_can_list || $delhivery_can_bulk || $delhivery_can_tracking || $delhivery_can_pickuppoint || $delhivery_can_pickup_request || $delhivery_can_ndr;
                                         if ( $delhivery_can ) : ?>
                                         <li class="nav-item dropdown">
                                                 <a class="nav-link dropdown-toggle drop-arrow-none" href="#"
@@ -107,21 +133,39 @@ $nav_can = function( $prefixes ) {
                                                         <div class="menu-arrow"></div>
                                                 </a>
                                                 <div class="dropdown-menu" aria-labelledby="topnav-delhivery">
-                                                        <?php if ( $nav_can( 'shipment-create' ) ) : ?><a href="delhivery-b2c-shipment-create.php" class="dropdown-item"><i data-lucide="zap" style="width:14px;height:14px;" class="me-2"></i>B2C Booking</a><?php endif; ?>
-                                                        <?php if ( $nav_can( 'shipment-list' ) ) : ?><a href="delhivery-b2c-shipment-list.php" class="dropdown-item"><i data-lucide="list" style="width:14px;height:14px;" class="me-2"></i>B2C List</a><?php endif; ?>
-                                                        <?php if ( $nav_can( 'shipment-bulk' ) ) : ?><a href="shipment-bulk.php" class="dropdown-item"><i data-lucide="upload" style="width:14px;height:14px;" class="me-2"></i>Bulk Upload</a><?php endif; ?>
-                                                        <?php if ( $nav_can( 'tracking' ) ) : ?><a href="tracking.php" class="dropdown-item"><i data-lucide="navigation" style="width:14px;height:14px;" class="me-2"></i>Tracking</a><?php endif; ?>
-                                                        <?php if ( $nav_can( 'pickuppoint' ) ) : ?><a href="delhivery-b2c-pickuppoint-list.php" class="dropdown-item"><i data-lucide="map-pin" style="width:14px;height:14px;" class="me-2"></i>Pickup Point</a><?php endif; ?>
-                                                        <?php if ( $nav_can( 'pickup_request' ) ) : ?><a href="delhivery-b2c-pickup-request-list.php" class="dropdown-item"><i data-lucide="clipboard-list" style="width:14px;height:14px;" class="me-2"></i>Pickup Request</a><?php endif; ?>
-                                                        <?php if ( $nav_can( [ 'ndr-shipments', 'ndr_status' ] ) ) : ?><a href="delhivery-b2c-ndr-shipments.php" class="dropdown-item"><i data-lucide="alert-triangle" style="width:14px;height:14px;" class="me-2"></i>NDR Status</a><?php endif; ?>
+                                                        <?php if ( $delhivery_can_booking ) : ?><a href="delhivery_create.php" class="dropdown-item"><i data-lucide="zap" style="width:14px;height:14px;" class="me-2"></i>B2C Booking</a><?php endif; ?>
+                                                        <?php if ( $delhivery_can_list ) : ?><a href="delhivery-b2c-shipment-list.php" class="dropdown-item"><i data-lucide="list" style="width:14px;height:14px;" class="me-2"></i>B2C List</a><?php endif; ?>
+                                                        <?php if ( $delhivery_can_bulk ) : ?><a href="shipment-bulk.php" class="dropdown-item"><i data-lucide="upload" style="width:14px;height:14px;" class="me-2"></i>Bulk Upload</a><?php endif; ?>
+                                                        <?php if ( $delhivery_can_tracking ) : ?><a href="tracking.php" class="dropdown-item"><i data-lucide="navigation" style="width:14px;height:14px;" class="me-2"></i>Tracking</a><?php endif; ?>
+                                                        <?php if ( $delhivery_can_pickuppoint ) : ?><a href="delhivery-b2c-pickuppoint-list.php" class="dropdown-item"><i data-lucide="map-pin" style="width:14px;height:14px;" class="me-2"></i>Pickup Point</a><?php endif; ?>
+                                                        <?php if ( $delhivery_can_pickup_request ) : ?><a href="delhivery-b2c-pickup-request-list.php" class="dropdown-item"><i data-lucide="clipboard-list" style="width:14px;height:14px;" class="me-2"></i>Pickup Request</a><?php endif; ?>
+                                                        <?php if ( $delhivery_can_ndr ) : ?><a href="delhivery-b2c-ndr-shipments.php" class="dropdown-item"><i data-lucide="alert-triangle" style="width:14px;height:14px;" class="me-2"></i>NDR Status</a><?php endif; ?>
                                                 </div>
                                         </li>
                                         <?php endif; ?>
 
                                         <!-- Shiprocket Menu -->
                                         <?php
-                                        $shiprocket_prefixes = [ 'shipment-create', 'shipment-bulk', 'shipment-list', 'tracking', 'pickuppoint', 'pickup_request', 'ndr-shipments', 'ndr_status' ];
-                                        $shiprocket_can = $nav_can( $shiprocket_prefixes );
+                                        $shiprocket_can_list = $nav_can( 'shiprocket-list' );
+                                        $shiprocket_can_bulk = $nav_can( 'shiprocket-bulk' );
+                                        $shiprocket_can_manifest = $nav_can( 'shiprocket-manifest' );
+                                        $shiprocket_can_pickup = $nav_can( 'shiprocket-pickup' );
+                                        $shiprocket_can = $shiprocket_can_list || $shiprocket_can_bulk || $shiprocket_can_manifest || $shiprocket_can_pickup;
+                                        // #region agent log
+                                        if (function_exists ( '_agent_debug_log' )) {
+                                                _agent_debug_log ( [
+                                                        'hypothesisId' => 'H5',
+                                                        'location' => 'horizontal-menu.php:shiprocket_gate',
+                                                        'message' => 'Shiprocket menu gate evaluated',
+                                                        'data' => [
+                                                                'role_id' => (int) ($role_id ?? 0),
+                                                                'session_role_id' => (int) ($_SESSION['role_id'] ?? 0),
+                                                                'session_user_id' => (int) ($_SESSION['user_id'] ?? 0),
+                                                                'shiprocket_can' => (bool) $shiprocket_can
+                                                        ]
+                                                ] );
+                                        }
+                                        // #endregion
                                         if ( $shiprocket_can ) : ?>
                                         <li class="nav-item dropdown">
                                                 <a class="nav-link dropdown-toggle drop-arrow-none" href="#"
@@ -132,11 +176,12 @@ $nav_can = function( $prefixes ) {
                                                         <div class="menu-arrow"></div>
                                                 </a>
                                                 <div class="dropdown-menu" aria-labelledby="topnav-shiprocket">
-                                                        <?php if ( $nav_can( 'shipment-list' ) ) : ?><a href="shiprocke-lists.php" class="dropdown-item"><i data-lucide="list" style="width:14px;height:14px;" class="me-2"></i>Booking List</a><?php endif; ?>
-                                                        <?php if ( $nav_can( 'shipment-bulk' ) ) : ?><a href="shiprocket-bulk-upload.php" class="dropdown-item"><i data-lucide="upload" style="width:14px;height:14px;" class="me-2"></i>Bulk Upload</a><?php endif; ?>
-                                                        <?php if ( $nav_can( 'shipment-list' ) ) : ?><a href="shiprocket-manifest-list.php" class="dropdown-item"><i data-lucide="file-text" style="width:14px;height:14px;" class="me-2"></i>Manifest List</a><?php endif; ?>
-                                                        <?php if ( $nav_can( 'pickuppoint' ) ) : ?><a href="pickuppoint-list.php" class="dropdown-item"><i data-lucide="map-pin" style="width:14px;height:14px;" class="me-2"></i>Pickup Points</a><?php endif; ?>
-                                                        <?php if ( $nav_can( 'tracking' ) ) : ?><a href="tracking.php" class="dropdown-item"><i data-lucide="navigation" style="width:14px;height:14px;" class="me-2"></i>Tracking</a><?php endif; ?>
+                                                        <?php if ( $shiprocket_can_list ) : ?><a href="shiprocket_create.php" class="dropdown-item"><i data-lucide="package-plus" style="width:14px;height:14px;" class="me-2"></i>Create Shipment</a><?php endif; ?>
+                                                        <?php if ( $shiprocket_can_list ) : ?><a href="shiprocke-lists.php" class="dropdown-item"><i data-lucide="list" style="width:14px;height:14px;" class="me-2"></i>Booking List</a><?php endif; ?>
+                                                        <?php if ( $shiprocket_can_bulk ) : ?><a href="shiprocket-bulk-upload.php" class="dropdown-item"><i data-lucide="upload" style="width:14px;height:14px;" class="me-2"></i>Bulk Upload</a><?php endif; ?>
+                                                        <?php if ( $shiprocket_can_manifest ) : ?><a href="shiprocket-manifest-list.php" class="dropdown-item"><i data-lucide="file-text" style="width:14px;height:14px;" class="me-2"></i>Manifest List</a><?php endif; ?>
+                                                        <?php if ( $shiprocket_can_pickup ) : ?><a href="pickuppoint-list.php" class="dropdown-item"><i data-lucide="map-pin" style="width:14px;height:14px;" class="me-2"></i>Pickup Points</a><?php endif; ?>
+                                                        <?php if ( $shiprocket_can_list ) : ?><a href="tracking.php" class="dropdown-item"><i data-lucide="navigation" style="width:14px;height:14px;" class="me-2"></i>Tracking</a><?php endif; ?>
                                                 </div>
                                         </li>
                                         <?php endif; ?>
@@ -285,21 +330,24 @@ $nav_can = function( $prefixes ) {
                                                                         <h6 class="dropdown-header text-uppercase fw-bold"
                                                                                 style="font-size:10px; letter-spacing:.8px;">
                                                                                 Employee</h6>
-                                                                        <a href="employee-list.php"
+                                                                        <?php if ( $nav_can( 'employee' ) ) : ?><a href="employee-list.php"
                                                                                 class="dropdown-item"><i
                                                                                         data-lucide="user"
                                                                                         style="width:14px;height:14px;"
                                                                                         class="me-2"></i>Employee</a>
-                                                                        <a href="department-list.php"
+                                                                        <?php endif; ?>
+                                                                        <?php if ( $nav_can( 'department' ) ) : ?><a href="department-list.php"
                                                                                 class="dropdown-item"><i
                                                                                         data-lucide="layers"
                                                                                         style="width:14px;height:14px;"
                                                                                         class="me-2"></i>Departments</a>
-                                                                        <a href="designation-list.php"
+                                                                        <?php endif; ?>
+                                                                        <?php if ( $nav_can( 'designation' ) ) : ?><a href="designation-list.php"
                                                                                 class="dropdown-item"><i
                                                                                         data-lucide="award"
                                                                                         style="width:14px;height:14px;"
                                                                                         class="me-2"></i>Designation</a>
+                                                                        <?php endif; ?>
                                                                 </div>
                                                                 <!-- HR Management Column -->
                                                                 <div class="py-2 px-1 border-start"
@@ -307,36 +355,41 @@ $nav_can = function( $prefixes ) {
                                                                         <h6 class="dropdown-header text-uppercase fw-bold"
                                                                                 style="font-size:10px; letter-spacing:.8px;">
                                                                                 HR Management</h6>
-                                                                        <a href="salary-template-list.php"
+                                                                        <?php if ( $nav_can( 'salary_template' ) ) : ?><a href="salary-template-list.php"
                                                                                 class="dropdown-item"><i
                                                                                         data-lucide="file-text"
                                                                                         style="width:14px;height:14px;"
                                                                                         class="me-2"></i>Salary
                                                                                 Templates</a>
-                                                                        <a href="employee-salary-assign.php"
+                                                                        <?php endif; ?>
+                                                                        <?php if ( $nav_can( 'salary_template' ) ) : ?><a href="employee-salary-assign.php"
                                                                                 class="dropdown-item"><i
                                                                                         data-lucide="user-plus"
                                                                                         style="width:14px;height:14px;"
                                                                                         class="me-2"></i>Salary
                                                                                 Assignment</a>
-                                                                        <a href="shift-list.php"
+                                                                        <?php endif; ?>
+                                                                        <?php if ( $nav_can( 'employee' ) ) : ?><a href="shift-list.php"
                                                                                 class="dropdown-item"><i
                                                                                         data-lucide="clock"
                                                                                         style="width:14px;height:14px;"
                                                                                         class="me-2"></i>Shift
                                                                                 Management</a>
-                                                                        <a href="attendance-list.php"
+                                                                        <?php endif; ?>
+                                                                        <?php if ( $nav_can( 'employee' ) ) : ?><a href="attendance-list.php"
                                                                                 class="dropdown-item"><i
                                                                                         data-lucide="calendar-check"
                                                                                         style="width:14px;height:14px;"
                                                                                         class="me-2"></i>Attendance
                                                                                 Tracking</a>
-                                                                        <a href="payroll-list.php"
+                                                                        <?php endif; ?>
+                                                                        <?php if ( $nav_can( 'salary_template' ) ) : ?><a href="payroll-list.php"
                                                                                 class="dropdown-item"><i
                                                                                         data-lucide="banknote"
                                                                                         style="width:14px;height:14px;"
                                                                                         class="me-2"></i>Payroll
                                                                                 Processing</a>
+                                                                        <?php endif; ?>
                                                                 </div>
                                                                 <!-- Client Based Column -->
                                                                 <div class="py-2 px-1 border-start" style="min-width: 200px;">
@@ -352,7 +405,7 @@ $nav_can = function( $prefixes ) {
                                         <?php endif; ?>
 
                                         <!-- Reports & Others -->
-                                        <?php if ( $nav_can( [ 'setting-role', 'shipment', 'support' ] ) ) : ?>
+                                        <?php if ( $nav_can( [ 'setting-role', 'mis-reports', 'account-reports', 'status-reports', 'shipment-reports', 'attendance-reports', 'payroll-reports', 'whatsapp-settings', 'mail-settings' ] ) ) : ?>
                                         <li class="nav-item dropdown">
                                                 <a class="nav-link dropdown-toggle drop-arrow-none" href="#"
                                                         id="topnav-more" role="button" data-bs-toggle="dropdown"
@@ -369,49 +422,56 @@ $nav_can = function( $prefixes ) {
                                                                         <h6 class="dropdown-header text-uppercase fw-bold"
                                                                                 style="font-size:10px; letter-spacing:.8px;">
                                                                                 Reports</h6>
-                                                                        <a href="mis-reports.php"
+                                                                        <?php if ( $nav_can( 'mis-reports' ) ) : ?><a href="mis-reports.php"
                                                                                 class="dropdown-item"><i
                                                                                         data-lucide="bar-chart-2"
                                                                                         style="width:14px;height:14px;"
                                                                                         class="me-2"></i>MIS Reports</a>
-                                                                        <a href="account-reports.php"
+                                                                        <?php endif; ?>
+                                                                        <?php if ( $nav_can( 'account-reports' ) ) : ?><a href="account-reports.php"
                                                                                 class="dropdown-item"><i
                                                                                         data-lucide="trending-up"
                                                                                         style="width:14px;height:14px;"
                                                                                         class="me-2"></i>Account
                                                                                 Reports</a>
-                                                                        <a href="status-reports.php"
+                                                                        <?php endif; ?>
+                                                                        <?php if ( $nav_can( 'status-reports' ) ) : ?><a href="status-reports.php"
                                                                                 class="dropdown-item"><i
                                                                                         data-lucide="pie-chart"
                                                                                         style="width:14px;height:14px;"
                                                                                         class="me-2"></i>Status
                                                                                 Reports</a>
-                                                                        <a href="shipment-reports.php"
+                                                                        <?php endif; ?>
+                                                                        <?php if ( $nav_can( 'shipment-reports' ) ) : ?><a href="shipment-reports.php"
                                                                                 class="dropdown-item"><i
                                                                                         data-lucide="package"
                                                                                         style="width:14px;height:14px;"
                                                                                         class="me-2"></i>Shipment
                                                                                 Reports</a>
-                                                                        <a href="attendance-reports.php"
+                                                                        <?php endif; ?>
+                                                                        <?php if ( $nav_can( 'attendance-reports' ) ) : ?><a href="attendance-reports.php"
                                                                                 class="dropdown-item"><i
                                                                                         data-lucide="calendar"
                                                                                         style="width:14px;height:14px;"
                                                                                         class="me-2"></i>Attendance
                                                                                 Reports</a>
-                                                                        <a href="payroll-reports.php"
+                                                                        <?php endif; ?>
+                                                                        <?php if ( $nav_can( 'payroll-reports' ) ) : ?><a href="payroll-reports.php"
                                                                                 class="dropdown-item"><i
                                                                                         data-lucide="dollar-sign"
                                                                                         style="width:14px;height:14px;"
                                                                                         class="me-2"></i>Payroll
                                                                                 Reports</a>
+                                                                        <?php endif; ?>
                                                                         <div class="dropdown-divider my-1"></div>
                                                                         <h6 class="dropdown-header text-uppercase fw-bold"
                                                                                 style="font-size:10px; letter-spacing:.8px;">
                                                                                 Access</h6>
-                                                                        <a href="roles.php" class="dropdown-item"><i
+                                                                        <?php if ( $nav_can( 'setting-role' ) ) : ?><a href="roles.php" class="dropdown-item"><i
                                                                                         data-lucide="shield"
                                                                                         style="width:14px;height:14px;"
                                                                                         class="me-2"></i>Roles</a>
+                                                                        <?php endif; ?>
                                                                 </div>
                                                                 <!-- WhatsApp Column -->
                                                                 <div class="py-2 px-1 border-start"
@@ -419,21 +479,24 @@ $nav_can = function( $prefixes ) {
                                                                         <h6 class="dropdown-header text-uppercase fw-bold"
                                                                                 style="font-size:10px; letter-spacing:.8px;">
                                                                                 WhatsApp</h6>
-                                                                        <a href="whatsapp-settings.php"
+                                                                        <?php if ( $nav_can( 'whatsapp-settings' ) ) : ?><a href="whatsapp-settings.php"
                                                                                 class="dropdown-item"><i
                                                                                         data-lucide="message-circle"
                                                                                         style="width:14px;height:14px;"
                                                                                         class="me-2"></i>Settings</a>
-                                                                        <a href="whatsapp-template.php"
+                                                                        <?php endif; ?>
+                                                                        <?php if ( $nav_can( 'whatsapp-settings' ) ) : ?><a href="whatsapp-template.php"
                                                                                 class="dropdown-item"><i
                                                                                         data-lucide="layout-template"
                                                                                         style="width:14px;height:14px;"
                                                                                         class="me-2"></i>Template</a>
-                                                                        <a href="whatsapp-logs.php"
+                                                                        <?php endif; ?>
+                                                                        <?php if ( $nav_can( 'whatsapp-settings' ) ) : ?><a href="whatsapp-logs.php"
                                                                                 class="dropdown-item"><i
                                                                                         data-lucide="scroll"
                                                                                         style="width:14px;height:14px;"
                                                                                         class="me-2"></i>Logs</a>
+                                                                        <?php endif; ?>
                                                                 </div>
                                                                 <!-- Mail Column -->
                                                                 <div class="py-2 px-1 border-start"
@@ -441,20 +504,23 @@ $nav_can = function( $prefixes ) {
                                                                         <h6 class="dropdown-header text-uppercase fw-bold"
                                                                                 style="font-size:10px; letter-spacing:.8px;">
                                                                                 Mail</h6>
-                                                                        <a href="mail-settings.php"
+                                                                        <?php if ( $nav_can( 'mail-settings' ) ) : ?><a href="mail-settings.php"
                                                                                 class="dropdown-item"><i
                                                                                         data-lucide="mail"
                                                                                         style="width:14px;height:14px;"
                                                                                         class="me-2"></i>Settings</a>
-                                                                        <a href="mail-template.php"
+                                                                        <?php endif; ?>
+                                                                        <?php if ( $nav_can( 'mail-settings' ) ) : ?><a href="mail-template.php"
                                                                                 class="dropdown-item"><i
                                                                                         data-lucide="mail-plus"
                                                                                         style="width:14px;height:14px;"
                                                                                         class="me-2"></i>Template</a>
-                                                                        <a href="mail-logs.php" class="dropdown-item"><i
+                                                                        <?php endif; ?>
+                                                                        <?php if ( $nav_can( 'mail-settings' ) ) : ?><a href="mail-logs.php" class="dropdown-item"><i
                                                                                         data-lucide="mail-open"
                                                                                         style="width:14px;height:14px;"
                                                                                         class="me-2"></i>Logs</a>
+                                                                        <?php endif; ?>
                                                                 </div>
                                                         </div>
                                                 </div>
@@ -462,7 +528,7 @@ $nav_can = function( $prefixes ) {
                                         <?php endif; ?>
 
                                         <!-- Settings -->
-                                        <?php if ( $nav_can( [ 'courier_partner' ] ) ) : ?>
+                                        <?php if ( $nav_can( [ 'apis', 'couriers', 'courier_partner', 'about', 'setting-role' ] ) ) : ?>
                                         <li class="nav-item dropdown">
                                                 <a class="nav-link dropdown-toggle drop-arrow-none" href="#"
                                                         id="topnav-settings" role="button" data-bs-toggle="dropdown"
@@ -472,20 +538,24 @@ $nav_can = function( $prefixes ) {
                                                         <div class="menu-arrow"></div>
                                                 </a>
                                                 <div class="dropdown-menu" aria-labelledby="topnav-settings">
-                                                        <a href="apis.php" class="dropdown-item"><i data-lucide="plug"
+                                                        <?php if ( $nav_can( 'apis' ) ) : ?><a href="apis.php" class="dropdown-item"><i data-lucide="plug"
                                                                         style="width:14px;height:14px;"
                                                                         class="me-2"></i>APIs</a>
-                                                        <a href="couriers.php" class="dropdown-item"><i
+                                                        <?php endif; ?>
+                                                        <?php if ( $nav_can( 'couriers' ) ) : ?><a href="couriers.php" class="dropdown-item"><i
                                                                         data-lucide="truck"
                                                                         style="width:14px;height:14px;"
                                                                         class="me-2"></i>Couriers</a>
-                                                        <a href="courier-partner-list.php" class="dropdown-item"><i
+                                                        <?php endif; ?>
+                                                        <?php if ( $nav_can( 'courier_partner' ) ) : ?><a href="courier-partner-list.php" class="dropdown-item"><i
                                                                         data-lucide="link"
                                                                         style="width:14px;height:14px;"
                                                                         class="me-2"></i>Courier Partner Setup</a>
-                                                        <a href="about.php" class="dropdown-item"><i data-lucide="info"
+                                                        <?php endif; ?>
+                                                        <?php if ( $nav_can( 'about' ) ) : ?><a href="about.php" class="dropdown-item"><i data-lucide="info"
                                                                         style="width:14px;height:14px;"
                                                                         class="me-2"></i>About</a>
+                                                        <?php endif; ?>
                                                         <?php if ( $nav_can( 'setting-role' ) ) : ?><a href="setting-role.php" class="dropdown-item"><i data-lucide="shield"
                                                                         style="width:14px;height:14px;"
                                                                         class="me-2"></i>Roles</a><?php endif; ?>

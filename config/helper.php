@@ -14,13 +14,68 @@ if ( ! defined ( 'HELPER_INCLUDED' )) {
         session_start ();
         }
 
-    $role_id = (int) ($_SESSION[ 'role_id' ] ?? 1); // Default role_id is 1 (Admin)
+    // Security-first default: if role_id is missing, do NOT grant admin access.
+    $role_id = (int) ($_SESSION[ 'role_id' ] ?? 0);
+
+    function _agent_debug_log ($payload)
+        {
+        // Disable heavy debug transport in normal runtime to avoid request slowdowns/timeouts.
+        return;
+        $logPath = __DIR__ . '/../debug-2786da.log';
+        $base    = [
+            'sessionId' => '2786da',
+            'runId' => 'pre-fix',
+            'timestamp' => round ( microtime ( true ) * 1000 )
+        ];
+        $event = array_merge ( $base, $payload );
+        @file_put_contents ( $logPath, json_encode ( $event, JSON_UNESCAPED_SLASHES ) . PHP_EOL, FILE_APPEND );
+
+        // Fallback transport: send logs to debug ingest endpoint.
+        $endpoint = 'http://127.0.0.1:7662/ingest/b885f117-86a6-4da6-a625-6bae27d642bd';
+        $json     = json_encode ( $event, JSON_UNESCAPED_SLASHES );
+        if ($json !== false) {
+            $ctx = stream_context_create ( [
+                'http' => [
+                    'method' => 'POST',
+                    'header' => "Content-Type: application/json\r\nX-Debug-Session-Id: 2786da\r\n",
+                    'content' => $json,
+                    'timeout' => 1
+                ]
+            ] );
+            @file_get_contents ( $endpoint, false, $ctx );
+            }
+        }
 
     function get_permission ($permission, $can)
         {
         global $role_id; // Ensure access to global $role_id
 
+        // #region agent log
+        _agent_debug_log ( [
+            'hypothesisId' => 'H1',
+            'location' => 'config/helper.php:get_permission:entry',
+            'message' => 'Evaluating permission',
+            'data' => [
+                'role_id' => (int) $role_id,
+                'permission' => (string) $permission,
+                'can' => (string) $can
+            ]
+        ] );
+        // #endregion
+
         if ((int) $role_id === 1) {
+            // #region agent log
+            _agent_debug_log ( [
+                'hypothesisId' => 'H2',
+                'location' => 'config/helper.php:get_permission:admin_bypass',
+                'message' => 'Permission granted by admin bypass',
+                'data' => [
+                    'role_id' => (int) $role_id,
+                    'permission' => (string) $permission,
+                    'can' => (string) $can
+                ]
+            ] );
+            // #endregion
             return true; // Admin has all permissions
             }
 
@@ -31,6 +86,20 @@ if ( ! defined ( 'HELPER_INCLUDED' )) {
         foreach ($permissions as $permObject) {
             $p = $permObject[ 'permission_prefix' ] ?? '';
             if ( $p === $permission || $p === $permission_alt || $p === $permission_alt2 ) {
+                // #region agent log
+                _agent_debug_log ( [
+                    'hypothesisId' => 'H3',
+                    'location' => 'config/helper.php:get_permission:match',
+                    'message' => 'Matched permission row',
+                    'data' => [
+                        'role_id' => (int) $role_id,
+                        'requested_permission' => (string) $permission,
+                        'matched_prefix' => (string) $p,
+                        'can' => (string) $can,
+                        'value' => $permObject[$can] ?? null
+                    ]
+                ] );
+                // #endregion
                 return ! empty ($can) && isset ($permObject[$can]) && $permObject[$can] == '1';
                 }
             }
@@ -41,11 +110,17 @@ if ( ! defined ( 'HELPER_INCLUDED' )) {
     function get_staff_permissions ()
         {
         global $pdo, $role_id; // Access global variables
+        static $permissions_cache = [];
 
         // Check if database connection exists
         if ( ! $pdo) {
             error_log ( "Database connection not available in get_staff_permissions" );
             return []; // Return empty array if no connection
+            }
+
+        $cache_key = (int) $role_id;
+        if (isset ( $permissions_cache[ $cache_key ] )) {
+            return $permissions_cache[ $cache_key ];
             }
 
         try {
@@ -56,7 +131,20 @@ if ( ! defined ( 'HELPER_INCLUDED' )) {
 
             $stmt = $pdo->prepare ( $sql );
             $stmt->execute ( [ $role_id ] );
-            return $stmt->fetchAll ( PDO::FETCH_ASSOC ) ?: []; // Return empty array if no permissions found
+            $rows = $stmt->fetchAll ( PDO::FETCH_ASSOC ) ?: [];
+            // #region agent log
+            _agent_debug_log ( [
+                'hypothesisId' => 'H4',
+                'location' => 'config/helper.php:get_staff_permissions:result',
+                'message' => 'Fetched staff permissions',
+                'data' => [
+                    'role_id' => (int) $role_id,
+                    'rows' => count ( $rows )
+                ]
+            ] );
+            // #endregion
+            $permissions_cache[ $cache_key ] = $rows;
+            return $rows; // Return empty array if no permissions found
             }
         catch ( PDOException $e ) {
             error_log ( "Database error in get_staff_permissions: " . $e->getMessage () );

@@ -152,15 +152,16 @@ $modules = getModulesList();
                                                 continue;
                                             }
 
-                                            $stmt = $pdo->prepare("SELECT p.*, 
-                                                    COALESCE(sp.is_add, 0) AS is_add, 
-                                                    COALESCE(sp.is_edit, 0) AS is_edit, 
-                                                    COALESCE(sp.is_view, 0) AS is_view, 
-                                                    COALESCE(sp.is_delete, 0) AS is_delete
+                                            $stmt = $pdo->prepare("SELECT p.id, p.module_id, p.name, p.prefix, p.show_view, p.show_add, p.show_edit, p.show_delete,
+                                                    COALESCE(MAX(sp.is_add), 0) AS is_add, 
+                                                    COALESCE(MAX(sp.is_edit), 0) AS is_edit, 
+                                                    COALESCE(MAX(sp.is_view), 0) AS is_view, 
+                                                    COALESCE(MAX(sp.is_delete), 0) AS is_delete
                                                  FROM permission p
                                                  LEFT JOIN staff_privileges sp 
                                                  ON p.id = sp.permission_id AND sp.role_id = ?
                                                  WHERE p.module_id = ?
+                                                 GROUP BY p.id, p.module_id, p.name, p.prefix, p.show_view, p.show_add, p.show_edit, p.show_delete
                                                  ORDER BY CASE WHEN p.prefix = 'pickuppoint' THEN 1 WHEN p.prefix = 'coloader' THEN 2 ELSE 0 END, p.id");
                                             $stmt->execute([$role_id, $module['id']]);
 

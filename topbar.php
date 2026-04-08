@@ -1,4 +1,18 @@
 <?php
+// #region agent log
+if (function_exists('_agent_debug_log')) {
+    _agent_debug_log([
+        'hypothesisId' => 'H7',
+        'location' => 'topbar.php:entry',
+        'message' => 'Topbar rendered',
+        'data' => [
+            'uri' => (string) ($_SERVER['REQUEST_URI'] ?? ''),
+            'session_role_id' => (int) ($_SESSION['role_id'] ?? 0),
+            'session_user_id' => (int) ($_SESSION['user_id'] ?? 0)
+        ]
+    ]);
+}
+// #endregion
 // Determine if logged-in user is a client-access user
 // Covers: user_type='client' OR user_type=NULL with clientaccess=1
 if (!isset($isClientUser)) {
