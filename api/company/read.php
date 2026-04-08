@@ -25,9 +25,6 @@ try {
 
     // Additional Filters if needed (e.g. state)
     $state = isset($_GET['state']) && !empty($_GET['state']) ? trim($_GET['state']) : null;
-    $fromDate = isset($_GET['from_date']) ? $_GET['from_date'] : null;
-    $toDate = isset($_GET['to_date']) ? $_GET['to_date'] : null;
-
 
     // Column mapping for sorting
     // Indices must match the columns defined in the frontend DataTable
@@ -61,12 +58,6 @@ try {
         $bindings[':status'] = $status;
     }
 
-    if ($fromDate && $toDate) {
-        $sql .= " AND DATE(created_at) BETWEEN :from_date AND :to_date";
-        $bindings[':from_date'] = $fromDate;
-        $bindings[':to_date'] = $toDate;
-    }
-
     // Count Filtered Records
     $sqlFiltered = "SELECT COUNT(*) FROM tbl_company WHERE 1=1";
     // Reuse the exact same WHERE conditions
@@ -79,8 +70,6 @@ try {
         $sqlFiltered .= " AND state LIKE :state";
     if ($status)
         $sqlFiltered .= " AND status = :status";
-    if ($fromDate && $toDate)
-        $sqlFiltered .= " AND DATE(created_at) BETWEEN :from_date AND :to_date";
 
     $stmtFiltered = $pdo->prepare($sqlFiltered);
     foreach ($bindings as $key => $value) {

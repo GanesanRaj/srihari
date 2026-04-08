@@ -46,15 +46,7 @@ $can_delete = can_delete('branch');
                             <div class="card-body">
                                 <!-- Filters -->
                                 <div class="row mb-3">
-                                    <div class="col-md-3">
-                                        <div id="branch-range"
-                                            class="btn btn-sm btn-white border d-flex align-items-center gap-2 px-3 py-1 cursor-pointer w-100">
-                                            <i class="ti ti-calendar fs-14"></i>
-                                            <span class="fs-12 fw-medium"></span>
-                                            <i class="ti ti-chevron-down fs-10 ms-auto"></i>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-3">
+                                    <div class="col-md-4">
                                         <select id="companyFilter" class="form-select form-select-sm">
                                             <option value="">All Companies</option>
                                         </select>
@@ -66,7 +58,7 @@ $can_delete = can_delete('branch');
                                             <option value="inactive">Inactive</option>
                                         </select>
                                     </div>
-                                    <div class="col-md-3">
+                                    <div class="col-md-4">
                                         <div class="d-flex gap-2">
                                             <button type="button" class="btn btn-sm btn-soft-primary flex-grow-1"
                                                 id="filterBtn">
@@ -124,8 +116,6 @@ $can_delete = can_delete('branch');
             <script src="assets/plugins/datatables/buttons.print.min.js"></script>
 
             <script src="assets/plugins/select2/select2.min.js"></script>
-            <script src="assets/plugins/daterangepicker/moment.min.js"></script>
-            <script src="assets/plugins/daterangepicker/daterangepicker.js"></script>
 
             <script>
                 $(document).ready(function () {
@@ -137,32 +127,6 @@ $can_delete = can_delete('branch');
                             });
                         }
                     });
-
-                    // Date Range Picker Setup
-                    let startDate = moment().startOf('month').format('YYYY-MM-DD');
-                    let endDate = moment().endOf('month').format('YYYY-MM-DD');
-
-                    function cb(start, end) {
-                        $('#branch-range span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
-                        startDate = start.format('YYYY-MM-DD');
-                        endDate = end.format('YYYY-MM-DD');
-                        if (typeof table !== 'undefined') table.ajax.reload();
-                    }
-
-                    $('#branch-range').daterangepicker({
-                        startDate: moment().startOf('month'),
-                        endDate: moment().endOf('month'),
-                        ranges: {
-                            'Today': [moment(), moment()],
-                            'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
-                            'Last 7 Days': [moment().subtract(6, 'days'), moment()],
-                            'Last 30 Days': [moment().subtract(29, 'days'), moment()],
-                            'This Month': [moment().startOf('month'), moment().endOf('month')],
-                            'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
-                        }
-                    }, cb);
-
-                    cb(moment().startOf('month'), moment().endOf('month'));
 
                     // Initialize DataTable
                     var table = $('#branchTable').DataTable({
@@ -190,8 +154,6 @@ $can_delete = can_delete('branch');
                             data: function (d) {
                                 d.status = $('#statusFilter').val();
                                 d.company_id = $('#companyFilter').val();
-                                d.from_date = startDate;
-                                d.to_date = endDate;
                             }
                         },
                         columns: [
@@ -246,7 +208,6 @@ $can_delete = can_delete('branch');
                     $('#resetBtn').on('click', function () {
                         $('#statusFilter').val('');
                         $('#companyFilter').val('');
-                        cb(moment().startOf('month'), moment().endOf('month'));
                         table.ajax.reload();
                     });
 
