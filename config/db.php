@@ -4,7 +4,7 @@ require_once __DIR__ . '/env.php';
 
 // Database configuration from environment
 $host = env('DB_HOST', 'localhost');
-$dbname = env('DB_NAME', 'sripro');
+$dbname = env('DB_NAME', 'srilive');
 $username = env('DB_USER', 'root');
 $password = env('DB_PASSWORD', '');
 $charset = env('DB_CHARSET', 'utf8mb4');
