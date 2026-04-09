@@ -118,10 +118,10 @@ $nav_can = function( $prefixes ) {
                                         $delhivery_can_booking = $nav_can( 'delhivery-b2c-booking' );
                                         $delhivery_can_list = $nav_can( 'delhivery-b2c-list' );
                                         $delhivery_can_bulk = $nav_can( 'delhivery-bulk' );
-                                        $delhivery_can_tracking = $nav_can( 'tracking' ) && ( $delhivery_can_booking || $delhivery_can_list || $delhivery_can_bulk || $delhivery_can_pickuppoint || $delhivery_can_pickup_request || $delhivery_can_ndr );
                                         $delhivery_can_pickuppoint = $nav_can( 'delhivery-pickuppoint' );
                                         $delhivery_can_pickup_request = $nav_can( 'delhivery-pickup-request' );
                                         $delhivery_can_ndr = $nav_can( 'delhivery-ndr' );
+                                        $delhivery_can_tracking = $nav_can( 'tracking' ) && ( $delhivery_can_booking || $delhivery_can_list || $delhivery_can_bulk || $delhivery_can_pickuppoint || $delhivery_can_pickup_request || $delhivery_can_ndr );
                                         $delhivery_can = $delhivery_can_booking || $delhivery_can_list || $delhivery_can_bulk || $delhivery_can_tracking || $delhivery_can_pickuppoint || $delhivery_can_pickup_request || $delhivery_can_ndr;
                                         if ( $delhivery_can ) : ?>
                                         <li class="nav-item dropdown">

@@ -40,7 +40,28 @@ if ( ! isset ($_FILES[ 'bulk_file' ]) || $_FILES[ 'bulk_file' ][ 'error' ] !== U
 $fileTmpPath = $_FILES[ 'bulk_file' ][ 'tmp_name' ];
 $fileName    = $_FILES[ 'bulk_file' ][ 'name' ];
 
-require __DIR__ . '/../../vendor/autoload.php';
+$autoloadCandidates = [
+    __DIR__ . '/../../vendor/autoload.php',
+    __DIR__ . '/../../../vendor/autoload.php',
+    dirname(__DIR__, 4) . '/vendor/autoload.php',
+];
+$autoloadPath = null;
+foreach ($autoloadCandidates as $candidate) {
+    if (is_file($candidate)) {
+        $autoloadPath = $candidate;
+        break;
+    }
+}
+if ($autoloadPath === null) {
+    $msg = 'Composer autoload.php not found. Run composer install on server and ensure vendor/ is deployed.';
+    if ($streamMode) {
+        echo "EVENT:ERROR " . json_encode([ 'message' => $msg ]) . "\n";
+    } else {
+        echo json_encode([ 'status' => 'error', 'message' => $msg ]);
+    }
+    exit;
+}
+require $autoloadPath;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 require_once __DIR__ . '/../booking/services/delhivery.php';
 

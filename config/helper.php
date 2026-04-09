@@ -324,12 +324,27 @@ if ( ! defined ( 'HELPER_INCLUDED' )) {
         // If employee, get employee specific details
         if (in_array ( $user_type, [ 'employee', 'both' ] )) {
             try {
-                $stmtEmp = $pdo->prepare ( "SELECT e.name as employee_name, d.name as designation_name
+                $empInfo = null;
+                try {
+                    // Legacy schema
+                    $stmtEmp = $pdo->prepare ( "SELECT e.name as employee_name, d.name as designation_name
                                           FROM tbl_employee e
                                           LEFT JOIN tbl_designation d ON e.designation_id = d.id
-                                          WHERE e.id = :uid OR e.email = :uname" );
-                $stmtEmp->execute ( [ ':uid' => $user_id, ':uname' => $username ] );
-                $empInfo = $stmtEmp->fetch ( PDO::FETCH_ASSOC );
+                                          WHERE e.id = :uid OR e.email = :uname
+                                          LIMIT 1" );
+                    $stmtEmp->execute ( [ ':uid' => $user_id, ':uname' => $username ] );
+                    $empInfo = $stmtEmp->fetch ( PDO::FETCH_ASSOC );
+                    }
+                catch ( Exception $legacySchemaException ) {
+                    // Newer schema fallback
+                    $stmtEmp = $pdo->prepare ( "SELECT e.name as employee_name, d.designation as designation_name
+                                          FROM tbl_employees e
+                                          LEFT JOIN tbl_designations d ON e.designation_id = d.id
+                                          WHERE e.id = :uid OR e.email = :uname
+                                          LIMIT 1" );
+                    $stmtEmp->execute ( [ ':uid' => $user_id, ':uname' => $username ] );
+                    $empInfo = $stmtEmp->fetch ( PDO::FETCH_ASSOC );
+                    }
 
                 if ($empInfo) {
                     if ( ! empty ($empInfo[ 'employee_name' ])) {
