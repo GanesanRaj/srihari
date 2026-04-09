@@ -6,7 +6,6 @@ use PhpOffice\PhpSpreadsheet\Chart\Chart;
 use PhpOffice\PhpSpreadsheet\Chart\Renderer\MtJpGraphRenderer;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Settings;
-use PhpOffice\PhpSpreadsheet\Shared\StringHelper;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use PhpOffice\PhpSpreadsheet\Writer\IWriter;
@@ -36,7 +35,7 @@ class Sample
      */
     public function getScriptFilename(): string
     {
-        return basename(StringHelper::convertToString($_SERVER['SCRIPT_FILENAME']), '.php');
+        return basename($_SERVER['SCRIPT_FILENAME'], '.php');
     }
 
     /**
@@ -82,13 +81,17 @@ class Sample
         $regex = new RegexIterator($iterator, '/^.+\.php$/', RecursiveRegexIterator::GET_MATCH);
 
         $files = [];
-        /** @var string[] $file */
         foreach ($regex as $file) {
             $file = str_replace(str_replace('\\', '/', $baseDir) . '/', '', str_replace('\\', '/', $file[0]));
+            if (is_array($file)) {
+                // @codeCoverageIgnoreStart
+                throw new RuntimeException('str_replace returned array');
+                // @codeCoverageIgnoreEnd
+            }
             $info = pathinfo($file);
             $category = str_replace('_', ' ', $info['dirname'] ?? '');
             $name = str_replace('_', ' ', (string) preg_replace('/(|\.php)/', '', $info['filename']));
-            if (!in_array($category, ['.', 'bootstrap', 'templates']) && $name !== 'Header') {
+            if (!in_array($category, ['.', 'boostrap', 'templates'])) {
                 if (!isset($files[$category])) {
                     $files[$category] = [];
                 }
@@ -120,9 +123,6 @@ class Sample
         // Write documents
         foreach ($writers as $writerType) {
             $path = $this->getFilename($filename, mb_strtolower($writerType));
-            if (preg_match('/(mpdf|tcpdf)$/', $path)) {
-                $path .= '.pdf';
-            }
             $writer = IOFactory::createWriter($spreadsheet, $writerType);
             $writer->setIncludeCharts($withCharts);
             if ($writerCallback !== null) {
@@ -185,10 +185,10 @@ class Sample
         return $temporaryFilename . '.' . $extension;
     }
 
-    public function log(mixed $message): void
+    public function log(string $message): void
     {
         $eol = $this->isCli() ? PHP_EOL : '<br />';
-        echo ($this->isCli() ? date('H:i:s ') : '') . StringHelper::convertToString($message) . $eol;
+        echo ($this->isCli() ? date('H:i:s ') : '') . $message . $eol;
     }
 
     /**
@@ -241,16 +241,9 @@ class Sample
             : $this->log(sprintf('Function: %s() - %s.', rtrim($functionName, '()'), rtrim($description, '.')));
     }
 
-    /** @param mixed[][] $matrix */
-    public function displayGrid(array $matrix, null|bool|TextGridRightAlign $numbersRight = null): void
+    public function displayGrid(array $matrix): void
     {
         $renderer = new TextGrid($matrix, $this->isCli());
-        if (is_bool($numbersRight)) {
-            $numbersRight = $numbersRight ? TextGridRightAlign::numeric : TextGridRightAlign::none;
-        }
-        if ($numbersRight !== null) {
-            $renderer->setNumbersRight($numbersRight);
-        }
         echo $renderer->render();
     }
 
@@ -261,10 +254,10 @@ class Sample
         ?string $descriptionCell = null
     ): void {
         if ($descriptionCell !== null) {
-            $this->log($worksheet->getCell($descriptionCell)->getValueString());
+            $this->log($worksheet->getCell($descriptionCell)->getValue());
         }
-        $this->log($worksheet->getCell($formulaCell)->getValueString());
-        $this->log(sprintf('%s() Result is ', $functionName) . $worksheet->getCell($formulaCell)->getCalculatedValueString());
+        $this->log($worksheet->getCell($formulaCell)->getValue());
+        $this->log(sprintf('%s() Result is ', $functionName) . $worksheet->getCell($formulaCell)->getCalculatedValue());
     }
 
     /**

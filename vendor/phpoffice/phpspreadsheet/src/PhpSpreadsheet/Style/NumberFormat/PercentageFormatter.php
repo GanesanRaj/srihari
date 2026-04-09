@@ -20,7 +20,7 @@ class PercentageFormatter extends BaseFormatter
         $vDecimalCount = strlen(rtrim($vDecimals, '0'));
 
         $format = str_replace('%', '%%', $format);
-        $wholePartSize = strlen((string) floor(abs($value)));
+        $wholePartSize = strlen((string) floor($value));
         $decimalPartSize = 0;
         $placeHolders = '';
         // Number of decimals
@@ -32,7 +32,7 @@ class PercentageFormatter extends BaseFormatter
         }
         // Number of digits to display before the decimal
         if (preg_match('/([#0,]+)\.?/u', $format, $matches)) {
-            $firstZero = ltrim($matches[1], '#,');
+            $firstZero = preg_replace('/^[#,]*/', '', $matches[1]) ?? '';
             $wholePartSize = max($wholePartSize, strlen($firstZero));
         }
 

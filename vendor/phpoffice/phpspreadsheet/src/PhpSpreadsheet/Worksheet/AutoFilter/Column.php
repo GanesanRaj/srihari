@@ -76,7 +76,7 @@ class Column
     /**
      * Autofilter Column Dynamic Attributes.
      *
-     * @var (float|int|string)[]
+     * @var mixed[]
      */
     private array $attributes = [];
 
@@ -209,7 +209,7 @@ class Column
     /**
      * Set AutoFilter Attributes.
      *
-     * @param (float|int|string)[] $attributes
+     * @param mixed[] $attributes
      *
      * @return $this
      */
@@ -225,7 +225,7 @@ class Column
      * Set An AutoFilter Attribute.
      *
      * @param string $name Attribute Name
-     * @param float|int|string $value Attribute Value
+     * @param int|string $value Attribute Value
      *
      * @return $this
      */
@@ -240,7 +240,7 @@ class Column
     /**
      * Get AutoFilter Column Attributes.
      *
-     * @return (float|int|string)[]
+     * @return int[]|string[]
      */
     public function getAttributes(): array
     {
@@ -252,7 +252,7 @@ class Column
      *
      * @param string $name Attribute Name
      */
-    public function getAttribute(string $name): null|float|int|string
+    public function getAttribute(string $name): null|int|string
     {
         if (isset($this->attributes[$name])) {
             return $this->attributes[$name];
@@ -360,7 +360,6 @@ class Column
     public function __clone()
     {
         $vars = get_object_vars($this);
-        /** @var Column\Rule[] $value */
         foreach ($vars as $key => $value) {
             if ($key === 'parent') {
                 // Detach from autofilter parent

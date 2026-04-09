@@ -10,10 +10,12 @@ class Mpdf extends Pdf
     public const SIMULATED_BODY_START = '<!-- simulated body start -->';
     private const BODY_TAG = '<body>';
 
+    protected bool $isMPdf = true;
+
     /**
      * Gets the implementation of external PDF library that should be used.
      *
-     * @param mixed[] $config Configuration array
+     * @param array $config Configuration array
      *
      * @return \Mpdf\Mpdf implementation
      */
@@ -79,9 +81,7 @@ class Mpdf extends Pdf
         }
 
         //  Write to file
-        /** @var string */
-        $str = $pdf->Output('', 'S');
-        fwrite($fileHandle, $str);
+        fwrite($fileHandle, $pdf->Output('', 'S'));
 
         parent::restoreStateAfterSave();
     }

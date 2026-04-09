@@ -27,8 +27,8 @@ class RichText implements IComparable, Stringable
         // Rich-Text string attached to cell?
         if ($cell !== null) {
             // Add cell text and style
-            if ($cell->getValueString() !== '') {
-                $objRun = new Run($cell->getValueString());
+            if ($cell->getValue() != '') {
+                $objRun = new Run($cell->getValue());
                 $objRun->setFont(clone $cell->getWorksheet()->getStyle($cell->getCoordinate())->getFont());
                 $this->addText($objRun);
             }

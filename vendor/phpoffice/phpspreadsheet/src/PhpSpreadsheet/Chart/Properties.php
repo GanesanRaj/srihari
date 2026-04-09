@@ -99,24 +99,21 @@ abstract class Properties
     const SHADOW_PRESETS_PERSPECTIVE_LOWER_RIGHT = 22;
     const SHADOW_PRESETS_PERSPECTIVE_LOWER_LEFT = 23;
 
-    const POINTS_WIDTH_MULTIPLIER = 12_700;
-    const ANGLE_MULTIPLIER = 60_000; // direction and size-kx size-ky
-    const PERCENTAGE_MULTIPLIER = 100_000; // size sx and sy, and gradient pos
-    const MAX_SKEW_ANGLE_XML = 90 * self::ANGLE_MULTIPLIER - 1;
-    const MAX_SKEW_ANGLE_DEGREES = self::MAX_SKEW_ANGLE_XML / self::ANGLE_MULTIPLIER; // max for size-kx size-ky
+    const POINTS_WIDTH_MULTIPLIER = 12700;
+    const ANGLE_MULTIPLIER = 60000; // direction and size-kx size-ky
+    const PERCENTAGE_MULTIPLIER = 100000; // size sx and sy
 
     protected bool $objectState = false; // used only for minor gridlines
 
+    /** @var ?float */
     protected ?float $glowSize = null;
 
     protected ChartColor $glowColor;
 
-    /** @var array{size: ?float} */
     protected array $softEdges = [
         'size' => null,
     ];
 
-    /** @var mixed[] */
     protected array $shadowProperties = self::PRESETS_OPTIONS[0];
 
     protected ChartColor $shadowColor;
@@ -181,7 +178,6 @@ abstract class Properties
         return ((float) $value) / self::PERCENTAGE_MULTIPLIER;
     }
 
-    /** @return array{type: ?string, value: ?string, alpha: ?int} */
     protected function setColorProperties(?string $color, null|float|int|string $alpha, ?string $colorType): array
     {
         return [
@@ -399,7 +395,6 @@ abstract class Properties
         ],
     ];
 
-    /** @return mixed[] */
     protected function getShadowPresetsMap(int $presetsOption): array
     {
         return self::PRESETS_OPTIONS[$presetsOption] ?? self::PRESETS_OPTIONS[0];
@@ -407,9 +402,6 @@ abstract class Properties
 
     /**
      * Get value of array element.
-     *
-     * @param mixed[] $properties
-     * @param array<mixed>|int|string $elements
      */
     protected function getArrayElementsValue(array $properties, array|int|string $elements): mixed
     {
@@ -419,7 +411,7 @@ abstract class Properties
         }
 
         foreach ($elements as $keys) {
-            $reference = &$reference[$keys]; //* @phpstan-ignore-line
+            $reference = &$reference[$keys];
         }
 
         return $reference;
@@ -444,10 +436,6 @@ abstract class Properties
 
     /**
      * Get Glow Property.
-     *
-     * @param mixed[]|string $property
-     *
-     * @return null|array<mixed>|float|int|string
      */
     public function getGlowProperty(array|string $property): null|array|float|int|string
     {
@@ -461,9 +449,7 @@ abstract class Properties
                 'alpha' => $this->glowColor->getColorProperty('alpha'),
             ];
         } elseif (is_array($property) && count($property) >= 2 && $property[0] === 'color') {
-            /** @var string */
-            $temp = $property[1];
-            $retVal = $this->glowColor->getColorProperty($temp);
+            $retVal = $this->glowColor->getColorProperty($property[1]);
         }
 
         return $retVal;
@@ -521,14 +507,11 @@ abstract class Properties
         return $this->softEdges['size'];
     }
 
-    /** @param null|array{value?: ?string, alpha?: null|int|string, brightness?: null|int|string, type?: ?string}|float|string  $value */
     public function setShadowProperty(string $propertyName, mixed $value): self
     {
         $this->activateObject();
         if ($propertyName === 'color' && is_array($value)) {
-            /** @var array{value: ?string, alpha: null|int|string, brightness?: null|int|string, type: ?string} */
-            $valuex = $value;
-            $this->shadowColor->setColorPropertiesArray($valuex);
+            $this->shadowColor->setColorPropertiesArray($value);
         } else {
             $this->shadowProperties[$propertyName] = $value;
         }
@@ -580,9 +563,6 @@ abstract class Properties
     /**
      * Set Shadow Properties Values.
      *
-     * @param mixed[] $propertiesMap
-     * @param null|mixed[] $reference
-     *
      * @return $this
      */
     protected function setShadowPropertiesMapValues(array $propertiesMap, ?array &$reference = null)
@@ -591,13 +571,8 @@ abstract class Properties
         foreach ($propertiesMap as $property_key => $property_val) {
             if (is_array($property_val)) {
                 if (in_array($property_key, self::SHADOW_ARRAY_KEYS, true)) {
-                    /** @var null|array<mixed> */
-                    $temp = &$this->shadowProperties[$property_key];
-                    $reference = &$temp;
-                    $this->setShadowPropertiesMapValues(
-                        $property_val,
-                        $reference
-                    );
+                    $reference = &$this->shadowProperties[$property_key];
+                    $this->setShadowPropertiesMapValues($property_val, $reference);
                 }
             } else {
                 if ($base_reference === null) {
@@ -662,8 +637,6 @@ abstract class Properties
      * Get Shadow Property.
      *
      * @param string|string[] $elements
-     *
-     * @return null|mixed[]|string
      */
     public function getShadowProperty($elements): array|string|null
     {
@@ -674,19 +647,10 @@ abstract class Properties
                 'alpha' => $this->shadowColor->getAlpha(),
             ];
         }
-        $retVal = $this->getArrayElementsValue($this->shadowProperties, $elements);
-        if (is_scalar($retVal)) {
-            $retVal = (string) $retVal;
-        } elseif ($retVal !== null && !is_array($retVal)) {
-            // @codeCoverageIgnoreStart
-            throw new Exception('Unexpected value for shadowProperty');
-            // @codeCoverageIgnoreEnd
-        }
 
-        return $retVal;
+        return $this->getArrayElementsValue($this->shadowProperties, $elements);
     }
 
-    /** @return mixed[] */
     public function getShadowArray(): array
     {
         $array = $this->shadowProperties;
@@ -699,7 +663,6 @@ abstract class Properties
 
     protected ChartColor $lineColor;
 
-    /** @var array{width: null|float|int|string, compound: ?string, dash: ?string, cap: ?string, join: ?string, arrow: array{head: array{type: ?string, size: null|int|string, w: ?string, len: ?string}, end: array{type: ?string, size: null|int|string, w: ?string, len: ?string}}} */
     protected array $lineStyleProperties = [
         'width' => null, //'9525',
         'compound' => '', //self::LINE_STYLE_COMPOUND_SIMPLE,
@@ -824,16 +787,13 @@ abstract class Properties
         }
     }
 
-    /** @return mixed[] */
     public function getLineStyleArray(): array
     {
         return $this->lineStyleProperties;
     }
 
-    /** @param mixed[] $lineStyleProperties */
     public function setLineStyleArray(array $lineStyleProperties = []): self
     {
-        /** @var array{width?: ?string, compound?: string, dash?: string, cap?: string, join?: string, arrow?: array{head?: array{type?: string, size?: int, w?: string, len?: string}, end?: array{type?: string, size?: int, w?: string, len?: string}}} $lineStyleProperties */
         $this->activateObject();
         $this->lineStyleProperties['width'] = $lineStyleProperties['width'] ?? null;
         $this->lineStyleProperties['compound'] = $lineStyleProperties['compound'] ?? '';
@@ -855,28 +815,17 @@ abstract class Properties
     public function setLineStyleProperty(string $propertyName, mixed $value): self
     {
         $this->activateObject();
-        $this->lineStyleProperties[$propertyName] = $value; //* @phpstan-ignore-line
+        $this->lineStyleProperties[$propertyName] = $value;
 
         return $this;
     }
 
     /**
      * Get Line Style Property.
-     *
-     * @param array<mixed>|string $elements
      */
     public function getLineStyleProperty(array|string $elements): ?string
     {
-        $retVal = $this->getArrayElementsValue($this->lineStyleProperties, $elements);
-        if (is_scalar($retVal)) {
-            $retVal = (string) $retVal;
-        } elseif ($retVal !== null) {
-            // @codeCoverageIgnoreStart
-            throw new Exception('Unexpected value for lineStyleProperty');
-            // @codeCoverageIgnoreEnd
-        }
-
-        return $retVal;
+        return $this->getArrayElementsValue($this->lineStyleProperties, $elements);
     }
 
     protected const ARROW_SIZES = [
@@ -904,7 +853,7 @@ abstract class Properties
      */
     public function getLineStyleArrowParameters(string $arrowSelector, string $propertySelector): string
     {
-        return $this->getLineStyleArrowSize((int) $this->lineStyleProperties['arrow'][$arrowSelector]['size'], $propertySelector);
+        return $this->getLineStyleArrowSize($this->lineStyleProperties['arrow'][$arrowSelector]['size'], $propertySelector);
     }
 
     /**

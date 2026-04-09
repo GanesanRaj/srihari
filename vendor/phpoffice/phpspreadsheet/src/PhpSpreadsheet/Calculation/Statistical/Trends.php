@@ -12,10 +12,6 @@ class Trends
 {
     use ArrayEnabled;
 
-    /**
-     * @param array<mixed> $array1
-     * @param array<mixed> $array2
-     */
     private static function filterTrendValues(array &$array1, array &$array2): void
     {
         foreach ($array1 as $key => $value) {
@@ -28,9 +24,6 @@ class Trends
     /**
      * @param mixed $array1 should be array, but scalar is made into one
      * @param mixed $array2 should be array, but scalar is made into one
-     *
-     * @param-out array<mixed> $array1
-     * @param-out array<mixed> $array2
      */
     private static function checkTrendArrays(mixed &$array1, mixed &$array2): void
     {
@@ -52,10 +45,6 @@ class Trends
         $array2 = array_merge($array2);
     }
 
-    /**
-     * @param mixed[] $yValues
-     * @param mixed[] $xValues
-     */
     protected static function validateTrendArrays(array $yValues, array $xValues): void
     {
         $yValueCount = count($yValues);
@@ -127,7 +116,7 @@ class Trends
      * @param mixed[] $yValues array of mixed Data Series Y
      * @param mixed[] $xValues array of mixed Data Series X
      *
-     * @return array<mixed>|bool|float|string If an array of numbers is passed as an argument, then the returned result will also be an array
+     * @return array|bool|float|string If an array of numbers is passed as an argument, then the returned result will also be an array
      *            with the same dimensions
      */
     public static function FORECAST(mixed $xValue, array $yValues, array $xValues)
@@ -159,7 +148,7 @@ class Trends
      * @param mixed[] $newValues Values of X for which we want to find Y
      * @param mixed $const A logical (boolean) value specifying whether to force the intersect to equal 0 or not
      *
-     * @return array<int, array<int, array<int, float>>>
+     * @return float[]
      */
     public static function GROWTH(array $yValues, array $xValues = [], array $newValues = [], mixed $const = true): array
     {
@@ -175,11 +164,10 @@ class Trends
 
         $returnArray = [];
         foreach ($newValues as $xValue) {
-            /** @var float $xValue */
             $returnArray[0][] = [$bestFitExponential->getValueOfYForX($xValue)];
         }
 
-        return $returnArray;
+        return $returnArray; //* @phpstan-ignore-line
     }
 
     /**
@@ -215,7 +203,7 @@ class Trends
      * @param mixed $const A logical (boolean) value specifying whether to force the intersect to equal 0 or not
      * @param mixed $stats A logical (boolean) value specifying whether to return additional regression statistics
      *
-     * @return array<mixed>|string The result, or a string containing an error
+     * @return array|string The result, or a string containing an error
      */
     public static function LINEST(array $yValues, ?array $xValues = null, mixed $const = true, mixed $stats = false): string|array
     {
@@ -276,7 +264,7 @@ class Trends
      * @param mixed $const A logical (boolean) value specifying whether to force the intersect to equal 0 or not
      * @param mixed $stats A logical (boolean) value specifying whether to return additional regression statistics
      *
-     * @return array<mixed>|string The result, or a string containing an error
+     * @return array|string The result, or a string containing an error
      */
     public static function LOGEST(array $yValues, ?array $xValues = null, mixed $const = true, mixed $stats = false): string|array
     {
@@ -413,7 +401,7 @@ class Trends
      * @param mixed[] $newValues Values of X for which we want to find Y
      * @param mixed $const A logical (boolean) value specifying whether to force the intersect to equal 0 or not
      *
-     * @return array<int, array<int, array<int, float>>>
+     * @return float[]
      */
     public static function TREND(array $yValues, array $xValues = [], array $newValues = [], mixed $const = true): array
     {
@@ -429,10 +417,9 @@ class Trends
 
         $returnArray = [];
         foreach ($newValues as $xValue) {
-            /** @var float $xValue */
             $returnArray[0][] = [$bestFitLinear->getValueOfYForX($xValue)];
         }
 
-        return $returnArray;
+        return $returnArray; //* @phpstan-ignore-line
     }
 }

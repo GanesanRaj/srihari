@@ -132,16 +132,6 @@ class BaseDrawing implements IComparable
     protected $srcRect = [];
 
     /**
-     * Percentage multiplied by 100,000, e.g. 40% = 40,000.
-     * Opacity=x is the same as transparency=100000-x.
-     */
-    protected ?int $opacity = null;
-
-    protected bool $inCell = false;
-
-    protected int $index = 0;
-
-    /**
      * Create a new BaseDrawing.
      */
     public function __construct()
@@ -201,43 +191,30 @@ class BaseDrawing implements IComparable
     public function setWorksheet(?Worksheet $worksheet = null, bool $overrideOld = false): self
     {
         if ($this->worksheet === null) {
-            // Add drawing to Worksheet
+            // Add drawing to \PhpOffice\PhpSpreadsheet\Worksheet\Worksheet
             if ($worksheet !== null) {
                 $this->worksheet = $worksheet;
-                if (!($this instanceof Drawing && $this->getPath() === '')) {
-                    $this->worksheet->getCell($this->coordinates);
-                }
-                if ($this->inCell) {
-                    $this->worksheet->getInCellDrawingCollection()
-                        ->append($this);
-                } else {
-                    $this->worksheet->getDrawingCollection()
-                        ->append($this);
-                }
+                $this->worksheet->getCell($this->coordinates);
+                $this->worksheet->getDrawingCollection()->append($this);
             }
         } else {
             if ($overrideOld) {
-                // Remove drawing from old Worksheet
-                $collections = [
-                    $this->worksheet->getDrawingCollection(),
-                    $this->worksheet->getInCellDrawingCollection(),
-                ];
+                // Remove drawing from old \PhpOffice\PhpSpreadsheet\Worksheet\Worksheet
+                $iterator = $this->worksheet->getDrawingCollection()->getIterator();
 
-                foreach ($collections as $collection) {
-                    foreach ($collection as $key => $drawing) {
-                        if ($drawing->getHashCode() === $this->getHashCode()) {
-                            $collection->offsetUnset($key);
-                            $this->worksheet = null;
+                while ($iterator->valid()) {
+                    if ($iterator->current()->getHashCode() === $this->getHashCode()) {
+                        $this->worksheet->getDrawingCollection()->offsetUnset($iterator->key());
+                        $this->worksheet = null;
 
-                            break 2; // break both loops
-                        }
+                        break;
                     }
                 }
 
-                // Set new Worksheet
+                // Set new \PhpOffice\PhpSpreadsheet\Worksheet\Worksheet
                 $this->setWorksheet($worksheet);
             } else {
-                throw new PhpSpreadsheetException('A Worksheet has already been assigned. Drawings can only exist on one Worksheet.');
+                throw new PhpSpreadsheetException('A Worksheet has already been assigned. Drawings can only exist on one \\PhpOffice\\PhpSpreadsheet\\Worksheet.');
             }
         }
 
@@ -252,11 +229,6 @@ class BaseDrawing implements IComparable
     public function setCoordinates(string $coordinates): self
     {
         $this->coordinates = $coordinates;
-        if ($this->worksheet !== null) {
-            if (!($this instanceof Drawing && $this->getPath() === '')) {
-                $this->worksheet->getCell($this->coordinates);
-            }
-        }
 
         return $this;
     }
@@ -372,12 +344,9 @@ class BaseDrawing implements IComparable
      */
     public function setWidthAndHeight(int $width, int $height): self
     {
-        if ($this->width === 0 || $this->height === 0 || $width === 0 || $height === 0 || !$this->resizeProportional) {
-            $this->width = $width;
-            $this->height = $height;
-        } else {
-            $xratio = $width / $this->width;
-            $yratio = $height / $this->height;
+        $xratio = $width / ($this->width != 0 ? $this->width : 1);
+        $yratio = $height / ($this->height != 0 ? $this->height : 1);
+        if ($this->resizeProportional && !($width == 0 || $height == 0)) {
             if (($xratio * $this->height) < $height) {
                 $this->height = (int) ceil($xratio * $this->height);
                 $this->width = $width;
@@ -385,6 +354,9 @@ class BaseDrawing implements IComparable
                 $this->width = (int) ceil($yratio * $this->width);
                 $this->height = $height;
             }
+        } else {
+            $this->width = $width;
+            $this->height = $height;
         }
 
         return $this;
@@ -414,14 +386,14 @@ class BaseDrawing implements IComparable
         return $this;
     }
 
-    public function getShadow(): Shadow
+    public function getShadow(): Drawing\Shadow
     {
         return $this->shadow;
     }
 
-    public function setShadow(?Shadow $shadow = null): self
+    public function setShadow(?Drawing\Shadow $shadow = null): self
     {
-        $this->shadow = $shadow ?? new Shadow();
+        $this->shadow = $shadow ?? new Drawing\Shadow();
 
         return $this;
     }
@@ -436,7 +408,7 @@ class BaseDrawing implements IComparable
         return md5(
             $this->name
             . $this->description
-            . (($this->worksheet === null) ? '' : (string) spl_object_id($this->worksheet))
+            . (($this->worksheet === null) ? '' : $this->worksheet->getHashCode())
             . $this->coordinates
             . $this->offsetX
             . $this->offsetY
@@ -573,41 +545,5 @@ class BaseDrawing implements IComparable
     public function getFlipVertical(): bool
     {
         return $this->flipVertical;
-    }
-
-    public function setOpacity(?int $opacity): self
-    {
-        $this->opacity = $opacity;
-
-        return $this;
-    }
-
-    public function getOpacity(): ?int
-    {
-        return $this->opacity;
-    }
-
-    public function setInCell(bool $inCell): self
-    {
-        $this->inCell = $inCell;
-
-        return $this;
-    }
-
-    public function isInCell(): ?bool
-    {
-        return $this->inCell;
-    }
-
-    public function setIndex(int $index): self
-    {
-        $this->index = $index;
-
-        return $this;
-    }
-
-    public function getIndex(): int
-    {
-        return $this->index;
     }
 }

@@ -4,6 +4,7 @@ namespace PhpOffice\PhpSpreadsheet\Cell;
 
 use PhpOffice\PhpSpreadsheet\Calculation\Calculation;
 use PhpOffice\PhpSpreadsheet\Calculation\Engine\FormattedNumber;
+use PhpOffice\PhpSpreadsheet\RichText\RichText;
 use PhpOffice\PhpSpreadsheet\Shared\Date;
 use PhpOffice\PhpSpreadsheet\Shared\StringHelper;
 use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
@@ -29,7 +30,7 @@ class AdvancedValueBinder extends DefaultValueBinder implements IValueBinder
         $dataType = parent::dataTypeForValue($value);
 
         // Style logic - strings
-        if ($dataType === DataType::TYPE_STRING && is_string($value)) {
+        if ($dataType === DataType::TYPE_STRING && !$value instanceof RichText) {
             //    Test for booleans using locale-setting
             if (StringHelper::strToUpper($value) === Calculation::getTRUE()) {
                 $cell->setValueExplicit(true, DataType::TYPE_BOOL);
@@ -53,20 +54,18 @@ class AdvancedValueBinder extends DefaultValueBinder implements IValueBinder
             $thousandsSeparator = preg_quote(StringHelper::getThousandsSeparator(), '/');
 
             // Check for percentage
-            if (preg_match('/^\-?\d*' . $decimalSeparator . '?\d*\s?\%$/', (string) preg_replace('/(\d)' . $thousandsSeparator . '(\d)/u', '$1$2', $value))) {
-                return $this->setPercentage((string) preg_replace('/(\d)' . $thousandsSeparator . '(\d)/u', '$1$2', $value), $cell);
+            if (preg_match('/^\-?\d*' . $decimalSeparator . '?\d*\s?\%$/', preg_replace('/(\d)' . $thousandsSeparator . '(\d)/u', '$1$2', $value))) {
+                return $this->setPercentage(preg_replace('/(\d)' . $thousandsSeparator . '(\d)/u', '$1$2', $value), $cell);
             }
 
             // Check for currency
-            if (preg_match(FormattedNumber::currencyMatcherRegexp(), (string) preg_replace('/(\d)' . $thousandsSeparator . '(\d)/u', '$1$2', $value), $matches, PREG_UNMATCHED_AS_NULL)) {
+            if (preg_match(FormattedNumber::currencyMatcherRegexp(), preg_replace('/(\d)' . $thousandsSeparator . '(\d)/u', '$1$2', $value), $matches, PREG_UNMATCHED_AS_NULL)) {
                 // Convert value to number
                 $sign = ($matches['PrefixedSign'] ?? $matches['PrefixedSign2'] ?? $matches['PostfixedSign']) ?? null;
-                $currencyCode = $matches['PrefixedCurrency'] ?? $matches['PostfixedCurrency'] ?? '';
-                /** @var string */
-                $temp = str_replace([$decimalSeparatorNoPreg, $currencyCode, ' ', '-'], ['.', '', '', ''], (string) preg_replace('/(\d)' . $thousandsSeparator . '(\d)/u', '$1$2', $value));
-                $value = (float) ($sign . trim($temp));
+                $currencyCode = $matches['PrefixedCurrency'] ?? $matches['PostfixedCurrency'];
+                $value = (float) ($sign . trim(str_replace([$decimalSeparatorNoPreg, $currencyCode, ' ', '-'], ['.', '', '', ''], preg_replace('/(\d)' . $thousandsSeparator . '(\d)/u', '$1$2', $value)))); // @phpstan-ignore-line
 
-                return $this->setCurrency($value, $cell, $currencyCode);
+                return $this->setCurrency($value, $cell, $currencyCode ?? '');
             }
 
             // Check for time without seconds e.g. '9:45', '09:45'
@@ -110,7 +109,6 @@ class AdvancedValueBinder extends DefaultValueBinder implements IValueBinder
         return parent::bindValue($cell, $value);
     }
 
-    /** @param array{0: string, 1: ?string, 2: numeric-string, 3: numeric-string, 4: numeric-string} $matches */
     protected function setImproperFraction(array $matches, Cell $cell): bool
     {
         // Convert value to number
@@ -131,7 +129,6 @@ class AdvancedValueBinder extends DefaultValueBinder implements IValueBinder
         return true;
     }
 
-    /** @param array{0: string, 1: ?string, 2: numeric-string, 3: numeric-string} $matches */
     protected function setProperFraction(array $matches, Cell $cell): bool
     {
         // Convert value to number

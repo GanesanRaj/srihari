@@ -37,7 +37,7 @@ class Axis extends Properties
     /**
      * Axis Number.
      *
-     * @var array{format: string, source_linked: int, numeric: ?bool}
+     * @var mixed[]
      */
     private array $axisNumber = [
         'format' => self::FORMAT_CODE_GENERAL,

@@ -148,15 +148,9 @@ class TextValue extends WizardAbstract implements WizardInterface
         $this->operator(self::MAGIC_OPERATIONS[$methodName]);
         //$this->operand(...$arguments);
         if (count($arguments) < 2) {
-            /** @var string */
-            $arg0 = $arguments[0];
-            $this->operand($arg0);
+            $this->operand($arguments[0]);
         } else {
-            /** @var string */
-            $arg0 = $arguments[0];
-            /** @var string */
-            $arg1 = $arguments[1];
-            $this->operand($arg0, $arg1);
+            $this->operand($arguments[0], $arguments[1]);
         }
 
         return $this;

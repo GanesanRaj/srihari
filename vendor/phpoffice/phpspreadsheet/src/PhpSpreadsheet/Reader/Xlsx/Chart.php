@@ -95,7 +95,6 @@ class Chart
         $gapWidth = null;
         $useUpBars = null;
         $useDownBars = null;
-        $noBorder = false;
         foreach ($chartElementsC as $chartElementKey => $chartElement) {
             switch ($chartElementKey) {
                 case 'spPr':
@@ -109,9 +108,6 @@ class Chart
                     if (isset($children->ln)) {
                         $chartBorderLines = new GridLines();
                         $this->readLineStyle($chartElementsC, $chartBorderLines);
-                        if (isset($children->ln->noFill)) {
-                            $noBorder = true;
-                        }
                     }
 
                     break;
@@ -474,7 +470,6 @@ class Chart
         if ($chartBorderLines !== null) {
             $chart->setBorderLines($chartBorderLines);
         }
-        $chart->setNoBorder($noBorder);
         $chart->setRoundedCorners($roundedCorners);
         if (is_bool($autoTitleDeleted)) {
             $chart->setAutoTitleDeleted($autoTitleDeleted);
@@ -579,7 +574,6 @@ class Chart
         $multiSeriesType = null;
         $smoothLine = false;
         $seriesLabel = $seriesCategory = $seriesValues = $plotOrder = $seriesBubbles = [];
-        $plotDirection = null;
 
         $seriesDetailSet = $chartDetail->children($this->cNamespace);
         foreach ($seriesDetailSet as $seriesDetailKey => $seriesDetails) {
@@ -610,16 +604,11 @@ class Chart
                                 break;
                             case 'order':
                                 $seriesOrder = self::getAttributeInteger($seriesDetail, 'val');
-                                if ($seriesOrder !== null) {
-                                    $plotOrder[$seriesIndex] = $seriesOrder;
-                                }
+                                $plotOrder[$seriesIndex] = $seriesOrder;
 
                                 break;
                             case 'tx':
-                                $temp = $this->chartDataSeriesValueSet($seriesDetail);
-                                if ($temp !== null) {
-                                    $seriesLabel[$seriesIndex] = $temp;
-                                }
+                                $seriesLabel[$seriesIndex] = $this->chartDataSeriesValueSet($seriesDetail);
 
                                 break;
                             case 'spPr':
@@ -696,42 +685,27 @@ class Chart
 
                                 break;
                             case 'smooth':
-                                $smoothLine = self::getAttributeBoolean($seriesDetail, 'val') ?? false;
+                                $smoothLine = self::getAttributeBoolean($seriesDetail, 'val');
 
                                 break;
                             case 'cat':
-                                $temp = $this->chartDataSeriesValueSet($seriesDetail);
-                                if ($temp !== null) {
-                                    $seriesCategory[$seriesIndex] = $temp;
-                                }
+                                $seriesCategory[$seriesIndex] = $this->chartDataSeriesValueSet($seriesDetail);
 
                                 break;
                             case 'val':
-                                $temp = $this->chartDataSeriesValueSet($seriesDetail, "$marker", $fillColor, "$pointSize");
-                                if ($temp !== null) {
-                                    $seriesValues[$seriesIndex] = $temp;
-                                }
+                                $seriesValues[$seriesIndex] = $this->chartDataSeriesValueSet($seriesDetail, "$marker", $fillColor, "$pointSize");
 
                                 break;
                             case 'xVal':
-                                $temp = $this->chartDataSeriesValueSet($seriesDetail, "$marker", $fillColor, "$pointSize");
-                                if ($temp !== null) {
-                                    $seriesCategory[$seriesIndex] = $temp;
-                                }
+                                $seriesCategory[$seriesIndex] = $this->chartDataSeriesValueSet($seriesDetail, "$marker", $fillColor, "$pointSize");
 
                                 break;
                             case 'yVal':
-                                $temp = $this->chartDataSeriesValueSet($seriesDetail, "$marker", $fillColor, "$pointSize");
-                                if ($temp !== null) {
-                                    $seriesValues[$seriesIndex] = $temp;
-                                }
+                                $seriesValues[$seriesIndex] = $this->chartDataSeriesValueSet($seriesDetail, "$marker", $fillColor, "$pointSize");
 
                                 break;
                             case 'bubbleSize':
-                                $seriesBubble = $this->chartDataSeriesValueSet($seriesDetail, "$marker", $fillColor, "$pointSize");
-                                if ($seriesBubble !== null) {
-                                    $seriesBubbles[$seriesIndex] = $seriesBubble;
-                                }
+                                $seriesBubbles[$seriesIndex] = $this->chartDataSeriesValueSet($seriesDetail, "$marker", $fillColor, "$pointSize");
 
                                 break;
                             case 'bubble3D':
@@ -845,7 +819,9 @@ class Chart
                     }
             }
         }
-        $series = new DataSeries($plotType, $multiSeriesType, $plotOrder, $seriesLabel, $seriesCategory, $seriesValues, $plotDirection, $smoothLine);
+        /** @phpstan-ignore-next-line */
+        $series = new DataSeries($plotType, $multiSeriesType, $plotOrder, $seriesLabel, $seriesCategory, $seriesValues, $smoothLine);
+        /** @phpstan-ignore-next-line */
         $series->setPlotBubbleSizes($seriesBubbles);
 
         return $series;
@@ -858,7 +834,6 @@ class Chart
             $seriesValues = new DataSeriesValues(DataSeriesValues::DATASERIES_TYPE_STRING, $seriesSource, null, 0, null, $marker, $fillColor, "$pointSize");
 
             if (isset($seriesDetail->strRef->strCache)) {
-                /** @var array{formatCode: string, dataValues: mixed[]} */
                 $seriesData = $this->chartDataSeriesValues($seriesDetail->strRef->strCache->children($this->cNamespace), 's');
                 $seriesValues
                     ->setFormatCode($seriesData['formatCode'])
@@ -870,7 +845,6 @@ class Chart
             $seriesSource = (string) $seriesDetail->numRef->f;
             $seriesValues = new DataSeriesValues(DataSeriesValues::DATASERIES_TYPE_NUMBER, $seriesSource, null, 0, null, $marker, $fillColor, "$pointSize");
             if (isset($seriesDetail->numRef->numCache)) {
-                /** @var array{formatCode: string, dataValues: mixed[]} */
                 $seriesData = $this->chartDataSeriesValues($seriesDetail->numRef->numCache->children($this->cNamespace));
                 $seriesValues
                     ->setFormatCode($seriesData['formatCode'])
@@ -883,7 +857,6 @@ class Chart
             $seriesValues = new DataSeriesValues(DataSeriesValues::DATASERIES_TYPE_STRING, $seriesSource, null, 0, null, $marker, $fillColor, "$pointSize");
 
             if (isset($seriesDetail->multiLvlStrRef->multiLvlStrCache)) {
-                /** @var array{formatCode: string, dataValues: mixed[]} */
                 $seriesData = $this->chartDataSeriesValuesMultiLevel($seriesDetail->multiLvlStrRef->multiLvlStrCache->children($this->cNamespace), 's');
                 $seriesValues
                     ->setFormatCode($seriesData['formatCode'])
@@ -896,7 +869,6 @@ class Chart
             $seriesValues = new DataSeriesValues(DataSeriesValues::DATASERIES_TYPE_STRING, $seriesSource, null, 0, null, $marker, $fillColor, "$pointSize");
 
             if (isset($seriesDetail->multiLvlNumRef->multiLvlNumCache)) {
-                /** @var array{formatCode: string, dataValues: mixed[]} */
                 $seriesData = $this->chartDataSeriesValuesMultiLevel($seriesDetail->multiLvlNumRef->multiLvlNumCache->children($this->cNamespace), 's');
                 $seriesValues
                     ->setFormatCode($seriesData['formatCode'])
@@ -919,7 +891,6 @@ class Chart
         return null;
     }
 
-    /** @return mixed[] */
     private function chartDataSeriesValues(SimpleXMLElement $seriesValueSet, string $dataType = 'n'): array
     {
         $seriesVal = [];
@@ -958,7 +929,6 @@ class Chart
         ];
     }
 
-    /** @return mixed[] */
     private function chartDataSeriesValuesMultiLevel(SimpleXMLElement $seriesValueSet, string $dataType = 'n'): array
     {
         $seriesVal = [];
@@ -1198,45 +1168,31 @@ class Chart
         }
         $fontArray = [];
         $fontArray['size'] = self::getAttributeInteger($titleDetailPart->pPr->defRPr, 'sz');
-        if ($fontArray['size'] !== null && $fontArray['size'] >= 100) {
-            $fontArray['size'] /= 100.0;
-        }
-        if ($fontArray['size'] !== null) {
-            $fontArray['size'] = (int) ($fontArray['size']);
-        }
-        $fontArray['bold'] = (bool) self::getAttributeBoolean($titleDetailPart->pPr->defRPr, 'b');
-        $fontArray['italic'] = (bool) self::getAttributeBoolean($titleDetailPart->pPr->defRPr, 'i');
+        $fontArray['bold'] = self::getAttributeBoolean($titleDetailPart->pPr->defRPr, 'b');
+        $fontArray['italic'] = self::getAttributeBoolean($titleDetailPart->pPr->defRPr, 'i');
         $fontArray['underscore'] = self::getAttributeString($titleDetailPart->pPr->defRPr, 'u');
-        $strikethrough = self::getAttributeString($titleDetailPart->pPr->defRPr, 'strike');
-        if ($strikethrough !== null) {
-            if ($strikethrough == 'noStrike') {
-                $fontArray['strikethrough'] = false;
-            } else {
-                $fontArray['strikethrough'] = true;
-            }
-        }
-        $fontArray['cap'] = (string) self::getAttributeString($titleDetailPart->pPr->defRPr, 'cap');
+        $fontArray['strikethrough'] = self::getAttributeString($titleDetailPart->pPr->defRPr, 'strike');
+        $fontArray['cap'] = self::getAttributeString($titleDetailPart->pPr->defRPr, 'cap');
 
         if (isset($titleDetailPart->pPr->defRPr->latin)) {
-            $fontArray['latin'] = (string) self::getAttributeString($titleDetailPart->pPr->defRPr->latin, 'typeface');
+            $fontArray['latin'] = self::getAttributeString($titleDetailPart->pPr->defRPr->latin, 'typeface');
         }
         if (isset($titleDetailPart->pPr->defRPr->ea)) {
-            $fontArray['eastAsian'] = (string) self::getAttributeString($titleDetailPart->pPr->defRPr->ea, 'typeface');
+            $fontArray['eastAsian'] = self::getAttributeString($titleDetailPart->pPr->defRPr->ea, 'typeface');
         }
         if (isset($titleDetailPart->pPr->defRPr->cs)) {
-            $fontArray['complexScript'] = (string) self::getAttributeString($titleDetailPart->pPr->defRPr->cs, 'typeface');
+            $fontArray['complexScript'] = self::getAttributeString($titleDetailPart->pPr->defRPr->cs, 'typeface');
         }
         if (isset($titleDetailPart->pPr->defRPr->solidFill)) {
             $fontArray['chartColor'] = new ChartColor($this->readColor($titleDetailPart->pPr->defRPr->solidFill));
         }
         $font = new Font();
-        //$font->setSize(null, true);
+        $font->setSize(null, true);
         $font->applyFromArray($fontArray);
 
         return $font;
     }
 
-    /** @return mixed[] */
     private function readChartAttributes(?SimpleXMLElement $chartDetail): array
     {
         $plotAttributes = [];
@@ -1294,11 +1250,9 @@ class Chart
         return $plotAttributes;
     }
 
-    /** @param array<mixed> $plotAttributes */
     private function setChartAttributes(Layout $plotArea, array $plotAttributes): void
     {
         foreach ($plotAttributes as $plotAttributeKey => $plotAttributeValue) {
-            /** @var ?bool $plotAttributeValue */
             switch ($plotAttributeKey) {
                 case 'showLegendKey':
                     $plotArea->setShowLegendKey($plotAttributeValue);
@@ -1326,11 +1280,6 @@ class Chart
                     break;
                 case 'showLeaderLines':
                     $plotArea->setShowLeaderLines($plotAttributeValue);
-
-                    break;
-                case 'labelFont':
-                    /** @var ?Font $plotAttributeValue */
-                    $plotArea->setLabelFont($plotAttributeValue);
 
                     break;
             }
@@ -1417,7 +1366,6 @@ class Chart
         'innerShdw',
     ];
 
-    /** @return array{type: ?string, value: ?string, alpha: ?int, brightness: ?int} */
     private function readColor(SimpleXMLElement $colorXml): array
     {
         $result = [

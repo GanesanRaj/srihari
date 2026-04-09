@@ -2,8 +2,6 @@
 
 namespace PhpOffice\PhpSpreadsheet\Shared\Escher;
 
-use PhpOffice\PhpSpreadsheet\Exception as SpreadsheetException;
-
 class DggContainer
 {
     /**
@@ -23,20 +21,18 @@ class DggContainer
 
     /**
      * BLIP Store Container.
+     *
+     * @var ?DggContainer\BstoreContainer
      */
     private ?DggContainer\BstoreContainer $bstoreContainer = null;
 
     /**
      * Array of options for the drawing group.
-     *
-     * @var mixed[]
      */
     private array $OPT = [];
 
     /**
-     * Array of identifier clusters containing information about the maximum shape identifiers.
-     *
-     * @var mixed[]
+     * Array of identifier clusters containg information about the maximum shape identifiers.
      */
     private array $IDCLs = [];
 
@@ -97,14 +93,6 @@ class DggContainer
     }
 
     /**
-     * Get BLIP Store Container.
-     */
-    public function getBstoreContainerOrThrow(): DggContainer\BstoreContainer
-    {
-        return $this->bstoreContainer ?? throw new SpreadsheetException('bstoreContainer is unexpectedly null');
-    }
-
-    /**
      * Set BLIP Store Container.
      */
     public function setBstoreContainer(DggContainer\BstoreContainer $bstoreContainer): void
@@ -138,8 +126,6 @@ class DggContainer
 
     /**
      * Get identifier clusters.
-     *
-     * @return mixed[]
      */
     public function getIDCLs(): array
     {
@@ -148,8 +134,6 @@ class DggContainer
 
     /**
      * Set identifier clusters. [<drawingId> => <max shape id>, ...].
-     *
-     * @param mixed[] $IDCLs
      */
     public function setIDCLs(array $IDCLs): void
     {

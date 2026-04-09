@@ -436,7 +436,6 @@ class Font
         }
 
         // Get corners positions
-        /** @var int[] $textBox */
         $lowerLeftCornerX = $textBox[0];
         $lowerRightCornerX = $textBox[2];
         $upperRightCornerX = $textBox[4];
@@ -564,7 +563,7 @@ class Font
         if (mb_strlen(self::$trueTypeFontPath) > 1 && mb_substr(self::$trueTypeFontPath, -1) !== '/' && mb_substr(self::$trueTypeFontPath, -1) !== '\\') {
             $separator = DIRECTORY_SEPARATOR;
         }
-        $fontFileAbsolute = preg_match('~^([A-Za-z]:)?[/\\\]~', $fontFile) === 1;
+        $fontFileAbsolute = preg_match('~^([A-Za-z]:)?[/\\\\]~', $fontFile) === 1;
         if (!$fontFileAbsolute) {
             $fontFile = self::findFontFile(self::$trueTypeFontPath, $fontFile) ?? self::$trueTypeFontPath . $separator . $fontFile;
         }
@@ -631,13 +630,11 @@ class Font
      */
     public static function getDefaultColumnWidthByFont(FontStyle $font, bool $returnAsPixels = false): float|int
     {
-        $size = $font->getSize();
-        $sizex = ($size !== null && $size == (int) $size) ? ((int) $size) : "$size";
-        if (isset(self::DEFAULT_COLUMN_WIDTHS[$font->getName()][$sizex])) {
+        if (isset(self::DEFAULT_COLUMN_WIDTHS[$font->getName()][$font->getSize()])) {
             // Exact width can be determined
             $columnWidth = $returnAsPixels
-                ? self::DEFAULT_COLUMN_WIDTHS[$font->getName()][$sizex]['px']
-                    : self::DEFAULT_COLUMN_WIDTHS[$font->getName()][$sizex]['width'];
+                ? self::DEFAULT_COLUMN_WIDTHS[$font->getName()][$font->getSize()]['px']
+                    : self::DEFAULT_COLUMN_WIDTHS[$font->getName()][$font->getSize()]['width'];
         } else {
             // We don't have data for this particular font and size, use approximation by
             // extrapolating from Calibri 11
@@ -667,9 +664,8 @@ class Font
     {
         $name = $font->getName();
         $size = $font->getSize();
-        $sizex = ($size !== null && $size == (int) $size) ? ((int) $size) : "$size";
-        if (isset(self::DEFAULT_COLUMN_WIDTHS[$name][$sizex])) {
-            $rowHeight = self::DEFAULT_COLUMN_WIDTHS[$name][$sizex]['height'];
+        if (isset(self::DEFAULT_COLUMN_WIDTHS[$name][$size])) {
+            $rowHeight = self::DEFAULT_COLUMN_WIDTHS[$name][$size]['height'];
         } elseif ($name === 'Arial' || $name === 'Verdana') {
             $rowHeight = self::DEFAULT_COLUMN_WIDTHS[$name][10]['height'] * $size / 10.0;
         } else {
@@ -699,10 +695,8 @@ class Font
                     $it,
                     RecursiveIteratorIterator::LEAVES_ONLY,
                     RecursiveIteratorIterator::CATCH_GET_CHILD
-                ) as $filex
+                ) as $file
             ) {
-                /** @var string */
-                $file = $filex;
                 if (basename($file) === $desiredFont) {
                     $fontPath = $file;
 
