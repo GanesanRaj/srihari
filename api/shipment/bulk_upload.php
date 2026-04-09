@@ -11,9 +11,9 @@ if ($streamMode) {
 } else {
     header('Content-Type: application/json');
 }
-require '../../config/db.php';
+require __DIR__ . '/../../config/db.php';
 session_start ();
-require_once '../../config/helper.php';
+require_once __DIR__ . '/../../config/helper.php';
 $current_user = get_current_user_info ();
 $userId       = $current_user ? $current_user[ 'id' ] : 1;
 $username     = $current_user ? $current_user[ 'username' ] : 'system';
@@ -40,7 +40,7 @@ if ( ! isset ($_FILES[ 'bulk_file' ]) || $_FILES[ 'bulk_file' ][ 'error' ] !== U
 $fileTmpPath = $_FILES[ 'bulk_file' ][ 'tmp_name' ];
 $fileName    = $_FILES[ 'bulk_file' ][ 'name' ];
 
-require '../../vendor/autoload.php';
+require __DIR__ . '/../../vendor/autoload.php';
 use PhpOffice\PhpSpreadsheet\IOFactory;
 require_once __DIR__ . '/../booking/services/delhivery.php';
 
@@ -111,7 +111,7 @@ foreach ($sheetData as $i => $data) {
     }
 
 // Use the CORRECT service router from booking module
-require_once '../../api/booking/services/courier_service.php';
+require_once __DIR__ . '/../booking/services/courier_service.php';
 
 $totalGroups = count($groups);
 $processedGroups = 0;
